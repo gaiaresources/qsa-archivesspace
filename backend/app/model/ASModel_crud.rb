@@ -372,7 +372,7 @@ module ASModel
               # before trying to fire the update
               record = model.any_repo.filter(:id => record_id).first
               if record
-                hash = model.any_repo.to_jsonmodel(record).to_hash(:trusted)
+                hash = model.to_jsonmodel(model.any_repo.filter(:id => record_id).first).to_hash(:trusted)
                 RealtimeIndexing.record_update(hash, uri)
               end
             end
