@@ -10,4 +10,4 @@
 	<span class="badge badge-danger"><%= t("states.deleted") %></span>
 <% end %>
 
-<%= clean_mixed_content(record["title"]).html_safe || clean_mixed_content(record['display_string']).html_safe %>
+<%= clean_mixed_content(record["title"] || record['display_string']).html_safe %>
