@@ -445,9 +445,6 @@
         <include name="**/*.yml" />
       </fileset>
     </copy>
-    <copy todir="target/archivesspace/docs">
-      <fileset dir="../docs" />
-    </copy>
     <copy todir="target/archivesspace/plugins/newrelic">
       <fileset dir="../plugins/newrelic"/>
     </copy>
