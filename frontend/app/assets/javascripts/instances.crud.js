@@ -37,17 +37,8 @@ $(function () {
       callback
     ) {
       if (object_name === 'instance') {
-        var formEl;
-        if (add_button_data.instanceType === 'digital-instance') {
-          formEl = $(
-            AS.renderTemplate('template_instance_digital_object', index_data)
-          );
-        } else {
-          formEl = $(
-            AS.renderTemplate('template_instance_container', index_data)
-          );
-          formEl.data('collapsed', false);
-        }
+        var formEl = $(AS.renderTemplate(add_button_data.template, index_data));
+        formEl.data("collapsed", false);
 
         callback(formEl, $target_subrecord_list);
       }
