@@ -37,7 +37,7 @@ class BatchImportRunner < JobRunner
         begin
           @job.job_files.each_with_index do |input_file, i|
             ticker.log(("=" * 50) + "\n#{filenames[i]}\n" + ("=" * 50)) if filenames[i]
-            converter = Converter.for(@json.job['import_type'], input_file.full_file_path, {:import_events => import_maint_events, :import_subjects => import_subjects, :import_repository => import_repository})
+            converter = Converter.for(@json.job['import_type'], input_file.full_file_path, {:import_events => import_maint_events, :import_subjects => import_subjects, :import_repository => import_repository}.merge(@json.job.fetch('opts', {})))
             begin
               RequestContext.open(:create_enums => true,
                                   :current_username => @job.owner.username,

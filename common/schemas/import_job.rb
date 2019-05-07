@@ -30,8 +30,8 @@
 
       "import_repository" => {
         "type" => "string"
-      }
-
+      },
+      "opts" => { "type" => "object" }
     }
   }
 }
