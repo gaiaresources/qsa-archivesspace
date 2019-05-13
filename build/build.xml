@@ -90,8 +90,20 @@
     </java>
   </target>
 
-  <!-- BACKEND -->
-  <target name="backend:coverage" depends="set-classpath, backend:test" description="Generate coverage reports for the backend">
+  <target name="bootstrap" depends="bootstrap-downloads" description="Download JRuby and install all required gems">
+    <delete dir="gems/bundler" />
+    <delete dir="gems/gems" />
+    <delete dir="gems/bin" />
+    <delete dir="gems/specifications" />
+
+    <!-- Delete any bundler configs to avoid exclude groups sticking
+         around between runs. -->
+    <delete>
+      <fileset dir=".." includes="*/.bundle/config" />
+    </delete>
+
+    <property name="excluded-gem-groups" value="" />
+    <property name="build.home" location="."/>
   </target>
 
   <target name="backend:devserver" depends="set-classpath" description="Start an instance of the ArchivesSpace backend development server">
