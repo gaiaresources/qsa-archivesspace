@@ -2,11 +2,15 @@ class DateCalculator
 
   attr_reader :min_begin, :max_end, :min_begin_date, :max_end_date
 
-  def initialize(obj, label = nil, calculate = true)
+  def initialize(obj, label = nil, calculate = true, opts = {})
     @root_object = obj
 
     @resource = obj.respond_to?(:root_record_id) ? obj.class.root_model[obj.root_record_id] : @root_object
     @label = label
+
+    @opts = opts
+    # Supported opts:
+    #   :allow_open_end - if set to true then accept nil end dates, otherwise default to begin
 
     @min_begin = nil
     @min_begin_date = nil
@@ -33,11 +37,11 @@ class DateCalculator
         parent_ids = [@root_object.id]
         ao_ids = []
 
-        while (true) do
+        while(true) do
           ids = db[:archival_object]
                  .filter(:parent_id => parent_ids)
                  .select(:id)
-                 .map {|row| row[:id]}
+                 .map{|row| row[:id]}
 
           if ids.empty?
             break
@@ -62,7 +66,8 @@ class DateCalculator
 
       date_query.map {|row|
         begin_raw = row[:begin]
-        end_raw = row[:end] || begin_raw
+        end_raw = row[:end]
+        end_raw ||= begin_raw unless @opts[:allow_open_end]
 
         begin_date = coerce_begin_date(begin_raw)
         end_date = coerce_end_date(end_raw)
