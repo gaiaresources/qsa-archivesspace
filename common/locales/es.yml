@@ -2085,6 +2085,8 @@ es:
     missing_required_property: Propiedad es necesaria pero falta
     missing_property: Faltaba propiedad
     not_a_valid_date: No es una fecha válida
+    must_be_a_non-negative_integer: Debe ser un entero no negativo
+    must_be_an_integer: Debe ser un entero
     must_not_be_before_begin: No se debe comenzar antes
     must_be_in_yyyy-mm-dd_format: La fecha debe estar en formato aaaa-mm-dd
     is_required_unless_a_begin_or_end_date_is_given: se requiere al menos que se da una fecha de inicio
