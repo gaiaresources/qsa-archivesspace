@@ -10,6 +10,9 @@ module RecordableCataloging
     def create_from_json(json, opts = {})
       obj = super
 
+      # QSA doesn't use this
+      return obj
+
       agent_uri = AgentSoftware.archivesspace_record.uri
 
       # If the current user has a linked agent, use it.
