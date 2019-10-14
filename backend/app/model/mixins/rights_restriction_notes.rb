@@ -12,7 +12,7 @@ module RightsRestrictionNotes
 
   def update_from_json(json, opts = {}, apply_nested_records = true)
     obj = super
-    RightsRestrictionNotes::Implementation.process_restriction_notes(json, obj)
+    # RightsRestrictionNotes::Implementation.process_restriction_notes(json, obj)
     obj
   end
 
@@ -21,7 +21,7 @@ module RightsRestrictionNotes
 
     def create_from_json(json, opts = {})
       obj = super
-      RightsRestrictionNotes::Implementation.process_restriction_notes(json, obj)
+      # RightsRestrictionNotes::Implementation.process_restriction_notes(json, obj)
       obj
     end
 
