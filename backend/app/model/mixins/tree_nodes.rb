@@ -354,7 +354,9 @@ module TreeNodes
         obj.set_position_in_list(json.position)
       end
 
+      unless ASUtils.migration_mode?
       ensure_consistent_tree(obj)
+      end
 
       obj
     end

@@ -348,7 +348,10 @@ module ASModel
 
         fire_update(json, obj)
 
+        unless ASUtils.migration_mode?
         obj.refresh
+        end
+
         obj
       end
 
