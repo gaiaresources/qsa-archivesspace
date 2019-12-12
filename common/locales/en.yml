@@ -2646,6 +2646,7 @@ en:
       date: Date
       boolean: Boolean
       controlled_value: Controlled Value
+      range: Range
     text:
       keyword: Keyword
       title: Title
