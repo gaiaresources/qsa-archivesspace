@@ -55,6 +55,10 @@ class AdvancedSearch
   end
 
 
+  def self.remove_field(name)
+    @fields.delete(name)
+  end
+
   AdvancedSearchField = Struct.new(:name, :type, :visibility, :solr_field, :is_default, :protects_unpublished) do
 
     def initialize(opts)
