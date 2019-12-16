@@ -207,6 +207,13 @@ $(function () {
       })
     );
 
+    if (type === 'range') {
+      $row.find('#fv'+index).val(query.from);
+      $row.find('#tv'+index).val(query.to);
+    } else {
+      $row.find('#v'+index).val(query.value);
+    }
+
     $advancedSearchRowContainer.append($row);
 
     if (type == 'date') {
