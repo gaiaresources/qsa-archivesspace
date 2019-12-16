@@ -9,10 +9,17 @@ class AdvancedQueryString
 
   def to_solr_s
     return empty_solr_s if empty_search?
-    if field.nil?
-      "#{prefix}#{value}"
+
+    solr_field = AdvancedSearch.solr_field_for(@query.fetch('field'))
+
+    if solr_field.respond_to?(:to_solr_s)
+      "#{prefix}(#{solr_field.to_solr_s(@query)})"
     else
-      "#{prefix}#{field}:#{value}"
+      if field.nil?
+        "#{prefix}#{value}"
+      else
+        "#{prefix}#{field}:#{value}"
+      end
     end
   end
 
