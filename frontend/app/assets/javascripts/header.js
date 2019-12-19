@@ -295,14 +295,18 @@ $(function () {
     });
   }
 
+  function processKey(e) {
+    if (null == e) e = window.event;
+    if (e.keyCode == 13) {
+      document.getElementById('advanced-search-btn').click();
+      return false;
+    }
+  }
+});
+
 
   // Series system advanced search function
   (function () {
-    var set_placeholder = function(row, index, from_placeholder, to_placeholder) {
-      row.find('#vf' + index).attr('placeholder', from_placeholder);
-      row.find('#vt' + index).attr('placeholder', to_placeholder);
-    };
-
     const handle_select = function (row) {
       const selected = row.find('.series_system_search_selector').val()
 
@@ -324,17 +328,12 @@ $(function () {
       if (field_data.type === 'series_system') {
         handle_select(row);
         row.find('select#f' + field_data.index).on('change', function () { handle_select(row) });
+
+      if (field_data.query.relator) {
+        row.find('select[name=r' + field_data.index + ']').val(field_data.query.relator);
+      }
+
+      row.find('input[name=v' + field_data.index + ']').val(field_data.query.value);
       }
     });
   }());
-
-
-});
-
-function processKey(e) {
-  if (null == e) e = window.event;
-  if (e.keyCode == 13) {
-    document.getElementById('advanced-search-btn').click();
-    return false;
-  }
-}
