@@ -9,7 +9,7 @@ module ASpaceImport
   class RecordBatch
 
     def initialize(opts = {})
-      opts.each do |k, v|
+      opts.each do |k,v|
         instance_variable_set("@#{k}", v)
       end
 
@@ -110,7 +110,7 @@ module ASpaceImport
       begin
         hash = obj.to_hash
       rescue JSONModel::ValidationException => e
-        e.import_context = obj["import_context"]
+        e.import_context = obj["import_context"] 
         raise e
       end
 
@@ -144,7 +144,7 @@ module ASpaceImport
         @batch_file.write(",") unless i == 0
 
         rec = ASUtils.json_parse(line)
-        rec = ASpaceImport::Utils.update_record_references(rec, @uri_remapping)
+        rec = ASpaceImport::Utils.update_record_references(rec, @uri_remapping, rec['uri'])
 
         uris << rec['uri']
 
