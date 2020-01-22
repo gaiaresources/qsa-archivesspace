@@ -83,9 +83,13 @@
         if ($field.val() == "keyword") {
           $operator.find("option:selected").prop("selected", false);
           $operator.find("option[value='contains']").prop("selected", true);
+          $operator.find("option[value='equals']").prop("disabled", true);
+          $operator.find("option[value='equals']").hide();
           $operator.find("option[value='empty']").prop("disabled", true);
           $operator.find("option[value='empty']").hide();
         } else {
+          $operator.find("option[value='equals']").prop("disabled", false);
+          $operator.find("option[value='equals']").show();
           $operator.find("option[value='empty']").prop("disabled", false);
           $operator.find("option[value='empty']").show();
         }
@@ -181,6 +185,7 @@
         <label for="top${index}"><%= t "advanced_search.text_operator.comparator" %></label>
         <select name="top${index}" id="top${index}" class="form-control">
           <option value="contains" {if query.comparator == "contains" || query.comparator == null}selected{/if}><%= t("advanced_search.text_operator.contains") %></option>
+          <option value="equals" {if query.comparator == "equals"}selected{/if}>contains phrase</option>
           <option value="empty" {if query.empty}selected{/if}><%= t("advanced_search.text_operator.empty") %></option>
         </select>
       </div>
