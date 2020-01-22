@@ -14,6 +14,15 @@ class AdvancedSearch
     }
   end
 
+  def self.solr_field_for_exact_match(field)
+    load_definitions
+    field = @fields.fetch(field.to_s) do
+      return field
+    end
+
+    field.solr_field_exact_match || field.solr_field
+  end
+
 
   def self.solr_field_for(field, protect_unpublished: false)
     load_definitions
@@ -59,7 +68,7 @@ class AdvancedSearch
     @fields.delete(name)
   end
 
-  AdvancedSearchField = Struct.new(:name, :type, :visibility, :solr_field, :is_default, :protects_unpublished) do
+  AdvancedSearchField = Struct.new(:name, :type, :visibility, :solr_field, :is_default, :protects_unpublished, :solr_field_exact_match) do
 
     def initialize(opts)
       opts.each do |k, v|

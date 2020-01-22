@@ -46,7 +46,11 @@ class AdvancedQueryString
   end
 
   def field
-    AdvancedSearch.solr_field_for(@query['field'], protect_unpublished: @protect_unpublished)
+    if exact_match_search?
+      AdvancedSearch.solr_field_for_exact_match(@query['field'])
+    else
+      AdvancedSearch.solr_field_for(@query['field'], protect_unpublished: @protect_unpublished)
+    end
   end
 
   def value
