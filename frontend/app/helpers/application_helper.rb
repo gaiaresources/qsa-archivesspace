@@ -100,6 +100,8 @@ module ApplicationHelper
       html += "<span class='icon-token #{opts[:icon_class]}'></span>"
     else
       html += "<span class='icon-token'></span>"
+    if opts[:object] && opts[:object]['qsa_id_prefixed'] && !opts[:label].start_with?(opts[:object]['qsa_id_prefixed'])
+      html += opts[:object]['qsa_id_prefixed'] + ' '
     end
     html += clean_mixed_content(opts[:label])
     html += "</div>"

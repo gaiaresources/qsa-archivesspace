@@ -76,8 +76,8 @@ $(function () {
 
                 $this.tokenInput('add', {
                   id: response.uri,
-                  name: tokenName(response),
-                  json: response,
+                  name: formatDisplayString(response),
+                  json: response
                 });
                 $this.triggerHandler('change');
                 $modal.modal('hide');
@@ -251,8 +251,8 @@ $(function () {
           $.each(currentlySelected, function (uri, object) {
             $this.tokenInput('add', {
               id: uri,
-              name: tokenName(object),
-              json: object,
+              name: formatDisplayString(object),
+              json: object
             });
           });
           $('#' + config.modal_id).modal('hide');
@@ -282,6 +282,16 @@ $(function () {
         return false; // IE patch
       };
 
+      var formatDisplayString = function(obj) {
+        var result = obj.display_string || obj.title;
+        if (obj.qsa_id_prefixed) {
+          result = obj.qsa_id_prefixed + ' ' + result;
+        } else if (obj.qsa_id_u_ssort) {
+          result = obj.qsa_id_u_ssort + ' ' + result;
+        }
+        return result;
+      };
+
       var formatResults = function (searchData) {
         var formattedResults = [];
 
@@ -294,7 +304,7 @@ $(function () {
           // only allow selection of unselected items
           if ($.inArray(obj.uri, currentlySelectedIds) === -1) {
             formattedResults.push({
-              name: tokenName(obj),
+              name: formatDisplayString(obj),
               id: obj.id,
               json: obj,
             });
@@ -395,13 +405,11 @@ $(function () {
           if ($.isEmptyObject($this.data('selected'))) {
             return [];
           }
-          return [
-            {
-              id: $this.data('selected').uri,
-              name: tokenName($this.data('selected')),
-              json: $this.data('selected'),
-            },
-          ];
+          return [{
+              id: $this.data("selected").uri,
+              name: formatDisplayString($this.data("selected")),
+              json: $this.data("selected")
+          }];
         } else {
           if (!$this.data('selected') || $this.data('selected').length === 0) {
             return [];
@@ -413,8 +421,8 @@ $(function () {
             }
             return {
               id: item.uri,
-              name: tokenName(item),
-              json: item,
+              name: formatDisplayString(item),
+              json: item
             };
           });
         }
