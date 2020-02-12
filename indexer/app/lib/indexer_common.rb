@@ -128,76 +128,51 @@ class IndexerCommon
   end
 
 
+  EXCLUDED_STRING_VALUE_PROPERTIES = Set.new(%w(created_by last_modified_by system_mtime user_mtime json types create_time date_type jsonmodel_type publish extent_type system_generated suppressed source rules name_order))
+
   def self.extract_string_values(doc, *opts)
-    return doc, doc if doc.is_a?(String)
+    queue = [doc]
+    strings = []
 
-    if doc.is_a?(Array)
-      published_queue = doc.flatten
-    else
-      published_queue = [doc]
-    end
+    while !queue.empty?
+      doc = queue.pop
 
-    extract_unpublished = !opts.include?(:published_only)
-
-    unpublished_queue = []
-    published_strings = []
-    unpublished_strings = []
-    published_done = false
-
-    [
-      [published_queue, published_strings],
-      [unpublished_queue, unpublished_strings]
-    ].each do |queue, strings|
-
-      while !queue.empty?
-        doc = queue.pop
-
-        if (!published_done && doc.has_key?("publish") && !doc["publish"])
-          if extract_unpublished
-            unpublished_queue.push(doc)
-          end
-          next
-        end
-
-        doc.each do |key, val|
-          if IndexerCommonConfig.fullrecord_excludes.include?(key) || key =~ /_enum_s$/
-            next # ignored
-          elsif val.is_a?(String)
-            strings.push(val)
-          elsif val.is_a?(Hash)
-            queue.push(val)
-          elsif val.is_a?(Array)
-            val.flatten.each do |v|
-              if v.is_a?(String)
-                strings.push(v)
-              elsif v.is_a?(Hash)
-                queue.push(v)
-              end
+      doc.each do |key, val|
+        if EXCLUDED_STRING_VALUE_PROPERTIES.include?(key) || key =~ /_enum_s$/
+          # ignored
+        elsif val.is_a?(String)
+          strings.push(val)
+        elsif val.is_a?(Hash)
+          queue.push(val)
+        elsif val.is_a?(Array)
+          val.each do |v|
+            if v.is_a?(String)
+              strings.push(v)
+            elsif v.is_a?(Hash)
+              queue.push(v)
             end
           end
         end
       end
-
-      if extract_unpublished
-        published_done = true
-      else
-        break
-      end
-
     end
 
-    if extract_unpublished
-      return published_strings, unpublished_strings
-    else
-      return published_strings
-    end
+    strings.join(' ')
   end
 
+  def self.build_fullrecord(record)
+    fullrecord = IndexerCommon.extract_string_values(record)
+    %w(finding_aid_subtitle finding_aid_author).each do |field|
+      if record['record'].has_key?(field)
+        fullrecord << " #{record['record'][field]}"
+      end
+    end
 
-  def build_fullrecord(doc, record)
-    # 'fullrecord' only contains unpublished text at this stage, but 'fullrecord_published'
-    # will be merged into it by Solr using copyField
-    doc['fullrecord_published'], doc['fullrecord'] = IndexerCommon.extract_string_values(record['record'])
+    if record['record'].has_key?('names')
+      fullrecord << " " + record['record']['names'].map {|name|
+        IndexerCommon.extract_string_values(name)
+      }.join(" ")
+    end
+    fullrecord
   end
 
   def add_agents(doc, record)
@@ -869,10 +844,7 @@ class IndexerCommon
 
 
     add_document_prepare_hook { |doc, record|
-      if !self.instance_of?(PUIIndexer)
-        # The PUI indexer makes its own call to build_fullrecord, so only call it here for realtime and periodic
-        build_fullrecord(doc, record)
-      end
+      doc['fullrecord'] = IndexerCommon.build_fullrecord(record)
     }
 
     add_document_prepare_hook {|doc, record|
