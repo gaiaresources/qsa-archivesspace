@@ -88,7 +88,10 @@ if [ "$ARCHIVESSPACE_USER" = "" ]; then
     ARCHIVESSPACE_USER=
 fi
 
+USE_LOGROTATE=0
+
 if [ "$ARCHIVESSPACE_LOGS" = "" ]; then
+    USE_LOGROTATE=1
     ARCHIVESSPACE_LOGS="logs/archivesspace.out"
 fi
 
@@ -155,6 +158,8 @@ case "$1" in
             shellcmd="su $ARCHIVESSPACE_USER"
         fi
 
+        if [ "$USE_LOGROTATE" = "0" ]; then
+            # Old behavior: log to file
         $shellcmd -c "cd '$ASPACE_LAUNCHER_BASE';
           (
              exec 0<&-; exec 1>&-; exec 2>&-;
@@ -162,6 +167,16 @@ case "$1" in
              echo \$! > \"$ASPACE_PIDFILE\"
           ) &
           disown $!"
+        else
+            # Use log rotation
+            $shellcmd -c "cd '$ASPACE_LAUNCHER_BASE';
+          (
+             exec 0<&-; exec 1>&-; exec 2>&-;
+             $startup_cmd 2>&1 | scripts/log-rotater.pl \"logs/%a.log\" \"$ARCHIVESSPACE_LOGS\" &
+             echo \$! > \"$ASPACE_PIDFILE\"
+          ) &
+          disown $!"
+        fi
 
         echo "ArchivesSpace started!  See $ARCHIVESSPACE_LOGS for details."
         ;;
