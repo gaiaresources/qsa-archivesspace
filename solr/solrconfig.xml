@@ -24,7 +24,11 @@
     <maxWarmingSearchers>2</maxWarmingSearchers>
   </query>
   <requestDispatcher handleSelect="false">
-    <requestParsers enableRemoteStreaming="true" multipartUploadLimitInKB="2048000" />
+    <!-- Increased formdataUploadLimitInKB from default of 2048KB to allow for
+         searching within large conservation requests. -->
+    <requestParsers enableRemoteStreaming="true"
+                    formdataUploadLimitInKB="32768"
+                    multipartUploadLimitInKB="2048000" />
     <httpCaching never304="true" />
   </requestDispatcher>
   <requestHandler name="/select" class="solr.SearchHandler">
