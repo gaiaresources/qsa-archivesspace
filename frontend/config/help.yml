@@ -1,151 +1,109 @@
 topics:
-  # Accession Topics
-  accession: '890044514/Managing+Accessions'
-  accession_basic_information: '894107705/Creating+a+Minimal+Accession+Record'
-  accession_extents: '894140545/Extents+Sub-Record+-+Accessions'
-  accession_dates: '894205962/Dates+Sub-Record+-+Accessions'
-  accession_related_resources: '893976733/Related+Resources+Link'
-  accession_linked_agents: '893911098/Agent+Links+-+Accessions'
-  accession_subjects: '893911102/Subject+Links+-+Accessions'
-  accession_external_documents: '894140549/External+Documents+Sub-Record+-+Accessions'
-  accession_rights_statements: '894107722/Rights+Statements+Sub-Record+%28v2.1.0%29+-+Accessions'
-  accession_deaccessions: '894206022/Deaccessions+Sub-Record+-+Accessions'
-  accession_instances: '894205992/Instances+Sub-Record+%28as+of+v1.5.0%29+-+Accessions'
-  accession_collection_management: '893878417/Collection+Management+Sub-Record+-+Accessions'
-  accession_metadata_rights_declarations: '3020455937/Metadata+Rights+Declarations+Sub-record+-+Accessions'
-  accession_classifications: '893878432/Classifications+Sub-Record+-+Accessions'
-  accession_user_defined: '893976727/User+Defined+Fields+-+Accessions'
-  # Resource Topics
-  resource: '890142825/Managing+Resources'
-  resource_basic_information: '893878578/Creating+and+Managing+Resource+Records'
-  resource_dates: '896237734/Dates+Sub-Record+-+Resources'
-  resource_extents: '895812021/Extents+Sub-Record+-+Resources'
-  resource_finding_aid: '894206166/Creating+a+Minimal+Resource+Record'
-  resource_related_accessions: '893976733/Related+Resources+Link'
-  resource_linked_agents: '896204929/Agent+Links+-+Resources'
-  resource_subjects: '896204960/Subject+Links+-+Resources'
-  resource_notes: '916947033/Notes+Sub-Records'
-  resource_external_documents: '895910272/External+Documents+Sub-Record+-+Resources'
-  resource_rights_statements: '896172159/Rights+Statements+Sub-Record+v2.1.0+-+Resources'
-  resource_metadata_rights_declarations: '3020128264/Metadata+Rights+Declarations+Sub-record+-+Resources'
-  resource_instances: '896204987/Instances+Sub-Record+as+of+v1.5.0+-+Resources'
-  resource_deaccessions: '895812081/Deaccessions+Sub-Record+-+Resources'
-  resource_collection_management: '896172244/Collection+Management+Sub-Record+-+Resources'
-  resource_classifications: '895910283/Classifications+Sub-Record+-+Resources'
-  resource_load_via_spreadsheet: '1173913646/Import+Archival+Objects+from+Excel+or+CSV+File+from+v2.8.1)'
-  resource_user_defined: '895812108/User+Defined+Fields+-+Resources'
+  # Resources
+  resource: series
+  resource_basic_information: series#creating-a-series
+  resource_dates: series#creating-a-series
+  resource_subjects: subjects
+  resource_notes: series#notes
+  resource_external_documents: series#resources
+  series_system_resource_to_series: series#series-to-series-relationships
+  series_system_resource_to_agent: series#relationships
+  series_system_resource_to_mandate: series#relationships
+  series_system_resource_to_function: series#relationships
+  resource_external_ids: series
+  resource_rap_attached: rap#attaching-raps-to-series
+  resource_deaccessions: items#deaccessioning-items
+  resource_rap_summary: rap#view-rap-history-and-summary
+  # Functionszzz
+  function: functions-and-mandates
+  function_basic_information: functions-and-mandates#creating-functions
+  function_date: functions-and-mandates
+  function_non_preferred_names: functions-and-mandates
+  series_system_function_to_function: entity-relationships#function-function
+  series_system_function_to_agent: entity-relationships#agent-function
+  series_system_function_to_mandate: entity-relationships#mandate-function
+  # Mandates
+  mandate: functions-and-mandates
+  mandate_basic_information: functions-and-mandates#creating-mandates
+  mandate_date: functions-and-mandates#creating-mandates
+  series_system_mandate_to_mandate: entity-relationships#mandate-mandate
+  series_system_mandate_to_function: entity-relationships#mandate-function
+  series_system_mandate_to_agent: entity-relationships#agency-mandate
+  mandate_external_ids: functions-and-mandates
   # Archival Objects
-  archival_object: '894107902/Resource+Records+Components'
-  archival_object_basic_information: '894206166/Creating+a+Minimal+Resource+Record'
-  archival_object_dates: '896237734/Dates+Sub-Record+-+Resources'
-  archival_object_extents: '895812021/Extents+Sub-Record+-+Resources'
-  archival_object_linked_agents: '896204929/Agent+Links+-+Resources'
-  archival_object_subjects: '896204960/Subject+Links+-+Resources'
-  archival_object_notes: '916947033/Notes+Sub-Records'
-  archival_object_external_documents: '895910272/External+Documents+Sub-Record+-+Resources'
-  archival_object_rights_statements: '896172159/Rights+Statements+Sub-Record+v2.1.0+-+Resources'
-  archival_object_instances: '896204987/Instances+Sub-Record+as+of+v1.5.0+-+Resources'
-  # Digital Object Topics
-  digital_object: '890142831/Managing+Digital+Objects'
-  digital_object_basic_information: '894501241/Creating+Digital+Objects'
-  digital_object_file_versions: '894435615/File+Versions'
-  digital_object_dates: '896893121/Dates+Sub-Record+-+Digital+Objects'
-  digital_object_extents: '896893148/Extents+Sub-Record+-+Digital+Objects'
-  digital_object_linked_agents: '896762114/Agent+Links+-+Digital+Objects'
-  digital_object_subjects: '896925788/Subject+Links+-+Digital+Objects'
-  digital_object_notes: '896958538/Notes+Sub-Records+for+Digital+Objects'
-  digital_object_classifications: '894435606/Linking+Classifications+to+Other+Records'
-  digital_object_external_documents: '896696508/External+Documents+Sub-Record+-+Digital+Objects'
-  digital_object_rights_statements: '896958557/Rights+Statements+Sub-Record+v2.1.0+-+Digital+Objects'
-  digital_object_collection_management: '894566807/Collection+Management+Sub-Record+-+Digital+Objects'
-  digital_object_user_defined: '896696520/User+Defined+Fields+-+Digital+Objects'
-  # Digital Object Components
-  digital_object_component: '894566810/Digital+Object+Components'
-  digital_object_component_basic_information: '894501241/Creating+Digital+Objects'
-  digital_object_component_file_versions: '894435615/File+Versions'
-  digital_object_component_dates: '896893121/Dates+Sub-Record+-+Digital+Objects'
-  digital_object_component_extents: '896893148/Extents+Sub-Record+-+Digital+Objects'
-  digital_object_component_linked_agents: '896762114/Agent+Links+-+Digital+Objects'
-  digital_object_metadata_rights_declarations: '3020521473/Metadata+Rights+Declarations+Sub-record+-+Digital+Objects'
-  digital_object_component_subjects: '896925788/Subject+Links+-+Digital+Objects'
-  digital_object_component_notes: '896958538/Notes+Sub-Records+for+Digital+Objects'
-  digital_object_component_external_documents: '896696508/External+Documents+Sub-Record+-+Digital+Objects'
-  digital_object_component_rights_statements: '896958557/Rights+Statements+Sub-Record+v2.1.0+-+Digital+Objects'
+  archival_object: items
+  archival_object_basic_information: items#creating-items
+  archival_object_dates: items#creating-items
+  archival_object_subjects: subjects
+  archival_object_notes: items#notes
+  archival_object_external_documents: series#resources
+  archival_object_rap_applied: items#attaching-raps-to-items
+  archival_object_rights_statements: items
+  archival_object_external_ids: items#persistent-identifiers
   # Subjects
-  subject: '890339535/Managing+Subjects'
-  subject_basic_information: '894566641/Creating+New+Subject+Records'
-  subject_terms: 894664812/Subject+Record+Fields
-  subject_external_documents: '894435522/External+Document+Sub-Record'
+  subject: subjects
+  subject_basic_information: subjects
+  subject_terms: subjects
+  subject_external_documents: subjects
   # Agent Persons
-  agent_person: '890011751/Managing+Agents'
-  agent_person_dates_of_existence: '1942945864/Agent+Record+Fields+from+3.0'
-  agent_person_names: '1942945864/Agent+Record+Fields+from+3.0'
-  agent_person_contact_details: '1942945864/Agent+Record+Fields+from+3.0'
-  agent_person_notes: '1942945864/Agent+Record+Fields+from+3.0'
-
-  # Agent Family
-  agent_family: '890011751/Managing+Agents'
-  agent_family_dates_of_existence: '1942945864/Agent+Record+Fields+from+3.0'
-  agent_family_names: '1942945864/Agent+Record+Fields+from+3.0'
-  agent_family_contact_details: '1942945864/Agent+Record+Fields+from+3.0'
-  agent_family_notes: '1942945864/Agent+Record+Fields+from+3.0'
+  agent_person: system-functions#users
+  agent_person_basic_information: system-functions#users
+  agent_person_dates_of_existence: system-functions#users
+  agent_person_use_dates: system-functions#users
+  agent_person_names: system-functions#users
+  agent_person_contact_details: system-functions#users
+  agent_person_notes: system-functions#users
+  agent_name_use_dates: system-functions#users
   # Agent Corporate Entity
-  agent_corporate_entity: '890011751/Managing+Agents'
-  agent_corporate_entity_dates_of_existence: '1942945864/Agent+Record+Fields+from+3.0'
-  agent_corporate_entity_names: '1942945864/Agent+Record+Fields+from+3.0'
-  agent_corporate_entity_contact_details: '1942945864/Agent+Record+Fields+from+3.0'
-  agent_corporate_entity_notes: '1942945864/Agent+Record+Fields+from+3.0'
-  # Agent Software
-  agent_software: '890011751/Managing+Agents'
-  agent_software_dates_of_existence: '1942945864/Agent+Record+Fields+from+3.0'
-  agent_software_names: '1942945864/Agent+Record+Fields+from+3.0'
-  agent_software_contact_details: '1942945864/Agent+Record+Fields+from+3.0'
-  agent_software_notes: '1942945864/Agent+Record+Fields+from+3.0'
-  # Agent Shared
-  agent_sources: '1942945864/Agent+Record+Fields+from+3.0'
-  agent_record_identifiers: '1942945864/Agent+Record+Fields+from+3.0'
-  agent_maintenance_histories: '1942945864/Agent+Record+Fields+from+3.0'
-  agent_other_agency_codes: '1942945864/Agent+Record+Fields+from+3.0'
-  agent_conventions_declarations: '1942945864/Agent+Record+Fields+from+3.0'
-  agent_identifiers: '1942945864/Agent+Record+Fields+from+3.0'
-  agent_alternate_sets: '1942945864/Agent+Record+Fields+from+3.0'
-  agent_record_controls: '1942945864/Agent+Record+Fields+from+3.0'
-  agent_genders: '1942945864/Agent+Record+Fields+from+3.0'
-  agent_place: '1942945864/Agent+Record+Fields+from+3.0'
-  agent_occupation: '1942945864/Agent+Record+Fields+from+3.0'
-  agent_function: '1942945864/Agent+Record+Fields+from+3.0'
-  agent_topic: '1942945864/Agent+Record+Fields+from+3.0'
-  agent_used_language: '1942945864/Agent+Record+Fields+from+3.0'
-  agent_external_documents: '894435542/External+Document+Sub-Record+-+Agent+Records'
-  agent_external_resources: '1976631381/Relation+Information+-+Linking+Agent+Record+s+and+Related+External+Resources+to+an+Agent+Record+v.3.0.0'
-  agent_related_agents: '1976631381/Relation+Information+-+Linking+Agent+Record+s+and+Related+External+Resources+to+an+Agent+Record+v.3.0.0'
-  agent_required: '2209677336/Editing+Required+Fields+in+Agent+Records'
-  agent_merge: '1961197569/Merging+Agent+Records+from+v3.0'
-
+  agent_corporate_entity: agencies
+  agent_corporate_entity_basic_information: agents#creating-agencies
+  agent_corporate_entity_dates_of_existence: agencies#agency-dates
+  agent_corporate_entity_names: agencies#agency-accs
+  agent_corporate_entity_notes: agencies#notes
+  agent_corporate_entity_external_documents: agencies#external-resources
+  series_system_agent_corporate_entity_to_agent: entity-relationships#agency-agency
+  series_system_agent_corporate_entity_to_mandate: entity-relationships#agent-agency-mandate
+  series_system_agent_corporate_entity_to_function: entity-relationships#agent-agent-function
+  # Physical Representation
+  physical_representation: representations
+  physical_representation_basic_information: representations#add-physical-representation-to-item
+  physical_representation_date: representations
+  physical_representation_rap_applied: rap
+  physical_representation_movements: locattions-containers-movements
+  # Digital Representation
+  digital_representation: representations
+  digital_representation_basic_information: representations#add-digital-representation-to-item
+  digital_representation_date: representations
+  digital_representation_rap_applied: rap
+  digital_representation_file_issues: representations#file-issue
+  digital_representation_deaccessions: representations#deaccession-reps-agency
+  digital_representation_external_references: representations
   # Location
-  location: '889946202/Managing+Locations'
+  location: locations-containers-movements
+  location_functions: locations-containers-movements
+  location_external_ids: locations-containers-movements
   # Event
-  event: '890011766/Events'
-  event_basic_information: '894697657/Events+Basic+Information'
-  event_date: '894501206/Events+Date'
-  event_linked_agents: '894533814/Events+Agent+Links'
-  event_linked_records: '894566764/Events+Record+Links'
+  event: /
+  event_basic_information: /
+  event_date: /
+  event_linked_agents: /
+  event_linked_records: /
   # Classification
-  classification: '890208308/Managing+Classifications'
+  classification: /
   # Classification Term
-  classification_term: '894664901/Defining+a+Classification+Hierarchy'
+  classification_term: /
   # Import
-  import: '894566467/Importing+Records+Overview'
+  import: import
   # Search
-  search: '892174361/About+Searching+and+Sorting+Results'
+  search: search
   # Manage Groups
-  repository_groups: '893583404/Managing+User+Permission+Groups'
+  repository_groups: system-functions#groups
   # Managing User Access
-  repository_users: '890011725/Managing+User+Accounts+and+User+Permissions'
+  repository_users: system-functions#users
   # Repositories
-  repository: '890339516/Managing+Repositories'
+  repository: /
   # Manage Users
-  user: '890011725/Managing+User+Accounts+and+User+Permissions'
+  user: system-functions#users
   # Controlled Value Lists
   enumeration: '890208293/Managing+Controlled+Value+Lists'
   # Assessments
@@ -159,3 +117,20 @@ topics:
 
   # Bulk Archival Object Updater job
   bulk_archival_object_updater_job: '4158423042/Bulk+Update+of+Archival+Objects+as+of+v4.0'
+
+  # Reading room requests
+  reading_room_requests: staff-functions
+  reading_room_requests_basic_information: staff-functions
+  reading_room_requests_requested_item: staff-functions
+  # Conservation Requests
+  conservation_request: conservation-request
+  conservation_request_basic_information: conservation-request#basic-information
+  conservation_request_representations_requested: conservation-request#representations-requested
+  # Batches
+  batch: common-functions
+  batch_basic_information: common-functions
+  # Jobs
+  job: /
+  # Top Containers
+  top_container: locations-containers-movements#creating-top-container
+  top_container_movements: locations-containers-movements#movement-of-top-containers
