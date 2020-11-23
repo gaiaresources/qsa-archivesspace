@@ -204,8 +204,7 @@ class ArchivesSpaceService
 
     Permission.define("update_location_record",
                       "The ability to create and modify location records",
-                      :implied_by => 'manage_repository',
-                      :level => "global")
+                      :level => "repository")
 
     Permission.define("delete_agent_record",
                       "The ability to delete agent records",
