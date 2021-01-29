@@ -13,10 +13,10 @@
   <% define_template("resource", jsonmodel_definition(:resource)) do |form| %>
 
   <section id="basic_information">
-    <h4>
+    <h3>
       <%= I18n.t("resource._frontend.section.basic_information") %>
       <%= link_to_help :topic => "resource_basic_information" %>
-    </h4>
+    </h3>
 
     <fieldset>
       <%= render_plugin_partials("top_of_basic_information_resource",
