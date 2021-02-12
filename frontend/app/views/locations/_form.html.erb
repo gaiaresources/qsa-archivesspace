@@ -1,6 +1,10 @@
 <% define_template("location", jsonmodel_definition(:location)) do |form| %>
   <fieldset>
     <section id="basic_information">
+      <h3>
+        <%= I18n.t("location._frontend.section.basic_information") %>
+        <%= link_to_help :topic => "location" %>
+      </h3>
       <%= render_plugin_partials("top_of_basic_information_location",
                                  :form => form,
                                  :record => @location) %>
