@@ -96,7 +96,9 @@ class DB
           yield(pool)
         end
       rescue Sequel::DatabaseError, java.sql.SQLException => e
-        Log.warn("DB connection failure: #{e}.  Retry count is #{retry_count}")
+        if retry_count > 0
+          Log.warn("DB connection failure: #{e}.  Retry count is #{retry_count}")
+        end
 
         if retry_count > 6
           # We give up
