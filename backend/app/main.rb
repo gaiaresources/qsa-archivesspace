@@ -26,6 +26,7 @@ require_relative 'lib/export'
 require_relative 'lib/request_context'
 require_relative 'lib/component_transfer'
 require_relative 'lib/progress_ticker'
+require_relative 'lib/zombie_record_hunter'
 require 'solr_snapshotter'
 
 require 'barcode_check'
@@ -178,7 +179,6 @@ class ArchivesSpaceService < Sinatra::Base
           Log.info("Done")
         end
 
-
         if AppConfig[:db_url] == AppConfig.demo_db_url &&
             settings.scheduler.find_by_tag('demo_db_backup').empty?
 
@@ -240,7 +240,13 @@ class ArchivesSpaceService < Sinatra::Base
         end
         @archivesspace_plugins_loaded = true
 
+        if AppConfig[:zombie_record_detection]
+          zombie_record_interval = [Integer(AppConfig[:zombie_record_interval_seconds]), 5].max
 
+          settings.scheduler.every("#{zombie_record_interval}s", :allow_overlapping => false) do
+            ZombieRecordHunter.run!
+          end
+        end
 
         Notifications.notify("BACKEND_STARTED")
         Log.noisiness "Logger::#{AppConfig[:backend_log_level].upcase}".constantize

@@ -334,6 +334,18 @@ AppConfig[:show_external_ids] = false
 AppConfig[:jetty_response_buffer_size_bytes] = 64 * 1024
 AppConfig[:jetty_request_buffer_size_bytes] = 64 * 1024
 
+
+#
+# A bug in MySQL versions prior to 8.0 can cause records to be assigned the same
+# ID as a previously deleted record (https://bugs.mysql.com/bug.php?id=199).
+# Zombie detection runs periodically to detect when that happens, and will
+# remove the "deleted" flag from those records.  Otherwise records would be left
+# both alive and dead.  Spooky.
+AppConfig[:zombie_record_detection] = true
+AppConfig[:zombie_record_interval_seconds] = 3600
+AppConfig[:zombie_record_detection_print_timing] = false
+
+
 # Container Management Configuration Settings
 #
 # :container_management_barcode_length defines global and repo-level barcode validations
