@@ -55,6 +55,10 @@ PLUGINS = [
   {
     :path => 'plugins/qsa_migration_adapter',
     :url => 'git@gitlab.gaiaresources.com.au:qsa/qsa_migration_adapter.git',
+  },
+  {
+    :path => 'plugins/index_interrogator',
+    :url => 'git@gitlab.gaiaresources.com.au:qsa/index_interrogator.git',
   }
 ]
 
