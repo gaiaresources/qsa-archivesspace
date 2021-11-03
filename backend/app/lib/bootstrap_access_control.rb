@@ -200,6 +200,10 @@ class ArchivesSpaceService
                       "The ability to create, modify and delete a vocabulary record",
                       :level => "repository")
 
+    Permission.define("manage_location_record",
+                      "The ability to create, modify and delete a location record",
+                      :level => "repository")
+
     Permission.define("update_vocabulary_record",
                       "The ability to create and modify vocabulary records",
                       :implied_by => 'manage_vocabulary_record',
@@ -207,7 +211,8 @@ class ArchivesSpaceService
 
     Permission.define("update_location_record",
                       "The ability to create and modify location records",
-                      :level => "repository")
+                      :implied_by => 'manage_location_record',
+                      :level => "global")
 
     Permission.define("delete_agent_record",
                       "The ability to delete agent records",
