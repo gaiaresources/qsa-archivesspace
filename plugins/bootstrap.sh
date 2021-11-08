@@ -54,7 +54,11 @@ PLUGINS = [
   },
   {
     :path => 'plugins/qsa_migration_adapter',
-    :url => 'https://github.com/hudmol/qsa_migration_adapter',
+    :url => 'git@gitlab.gaiaresoruces.com.au:qsa/qsa_migration_adapter.git',
+  },
+  {
+    :path => 'plugins/index_interrogator',
+    :url => 'git@gitlab.gaiaresoruces.com.au:qsa/index_interrogator.git',
   }
 ]
 
