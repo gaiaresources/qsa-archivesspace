@@ -107,6 +107,9 @@ GEM
     mail (2.7.1)
       mini_mime (>= 0.1.1)
     method_source (0.8.2)
+    mime-types (3.4.1)
+      mime-types-data (~> 3.2015)
+    mime-types-data (3.2021.1115)
     mini_mime (1.0.1)
     minitest (5.11.3)
     mizuno (0.6.11)
@@ -261,6 +264,7 @@ DEPENDENCIES
   less-rails-bootstrap
   loofah (>= 2.2.3)
   mail
+  mime-types
   mizuno (= 0.6.11)
   multi_json (~> 1.13.1)
   multipart-post (= 1.2.0)
