@@ -39,6 +39,8 @@ class SessionController < ApplicationController
 
   def logout
     reset_session
+    url = URI("#{JSONModel::HTTP.backend_url}/logout")
+    request = Net::HTTP::Post.new(url.request_uri)
     redirect_to :root
   end
 
