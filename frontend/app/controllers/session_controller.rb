@@ -41,7 +41,6 @@ class SessionController < ApplicationController
     reset_session
     url = URI("#{JSONModel::HTTP.backend_url}/logout")
     request = Net::HTTP::Post.new(url.request_uri)
-    response = JSONModel::HTTP.do_http_request(url, request)
     redirect_to :root
   end
 
