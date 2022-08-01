@@ -50,6 +50,9 @@ module Plugins
     @facet_group_i18n_handlers = {}
 
     @note_types_handlers = []
+
+    @before_audit_hooks = {}
+    @after_audit_hooks = {}
   end
 
 
@@ -164,6 +167,30 @@ module Plugins
     # Ensure your proc returns the note_types as this will be passed to the next
     # handler and onwards to the template
     @note_types_handlers << proc
+  end
+
+  def self.register_audit_info_before_hook(name, callback)
+    self.register_hook(@before_audit_hooks, name, callback)
+  end
+
+  def self.register_audit_info_after_hook(name, callback)
+    self.register_hook(@after_audit_hooks, name, callback)
+  end
+
+  def self.register_hook(hook_coll, name, callback)
+    hook_coll[name] = callback
+  end
+
+  def self.run_audit_info_before_hook(requested_format, output, record)
+    @before_audit_hooks.values.each do |hook|
+      hook.call(requested_format, output, record)
+    end
+  end
+
+  def self.run_audit_info_after_hook(requested_format, output, record)
+    @after_audit_hooks.values.each do |hook|
+      hook.call(requested_format, output, record)
+    end
   end
 
 

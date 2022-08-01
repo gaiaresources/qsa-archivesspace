@@ -275,6 +275,7 @@ module ApplicationHelper
                 end
     end
     html = "<div class='audit-display-#{fmt}'><small>"
+    Plugins.run_audit_info_before_hook(fmt, html, hash)
     if hash['create_time'] and hash['user_mtime']
       if fmt == 'wide'
         html << "<strong>#{I18n.t("search_results.created")} #{hash['created_by']}</strong>"
@@ -299,6 +300,7 @@ module ApplicationHelper
         html << "</dl>"
       end
     end
+    Plugins.run_audit_info_after_hook(fmt, html, hash)
     html << "</small></div><div class='clearfix'></div>"
     html.html_safe
   end
