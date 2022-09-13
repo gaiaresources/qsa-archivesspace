@@ -165,6 +165,17 @@ class DB
     end
 
     def open(transaction = true, opts = {})
+
+      if transaction === true || transaction === false
+        # OK!
+      else
+        raise "transaction parameter must be either boolean 'true' or 'false'"
+      end
+
+      if opts.include?(:savepoint)
+        raise "Use DB.transaction for savepoints"
+      end
+
       # Give us a place to hang storage that relates to the current database
       # session.
       Thread.current[:db_session_storage] ||= {}
