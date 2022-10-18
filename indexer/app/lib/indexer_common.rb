@@ -16,6 +16,8 @@ require_relative 'indexer_common_config'
 require_relative 'indexer_timing'
 require_relative 'fake_solr_timeout_response'
 
+require 'jsonstore'
+
 class IndexerCommon
 
   include JSONModel
@@ -76,6 +78,13 @@ class IndexerCommon
         sleep(5)
       end
     end
+
+    while !File.exist?(AppConfig[:solr_index_directory])
+      Log.error("Index directory doesn't exist.  Waiting...")
+      sleep(5)
+    end
+
+    @json_store = JSONStore.new(File.join(AppConfig[:solr_index_directory], "index/jsonstore.db"))
 
     # Force load up front
     self.enum_fields
@@ -1241,6 +1250,19 @@ class IndexerCommon
     end
 
     if !batch.empty?
+      # Write the JSON blobs to our new store
+      begin
+        @json_store.store_batch(batch.json_blobs_by_id, batch.json_version)
+      rescue Sequel::DatabaseError => e
+        if e.wrapped_exception.is_a?(org.sqlite.SQLiteException) && e.wrapped_exception.getResultCode == org.sqlite.SQLiteErrorCode::SQLITE_BUSY
+          Log.warn "Retrying SQLite update after lock timeout (#{e})"
+          sleep 2
+          retry
+        else
+          raise e
+        end
+      end
+
       # For any record we're updating, delete any child records first (where applicable)
       records_with_children = self.records_with_children.map {|record_type|
         batch.record_info_for_type(record_type).map {|info| '"%s"' % [info[:id]]}
