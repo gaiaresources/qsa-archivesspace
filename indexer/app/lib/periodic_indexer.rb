@@ -107,8 +107,8 @@ class PeriodicIndexer < IndexerCommon
               # Happy path: index all of our records in one shot
               index_records(records.map {|record|
                               {
-                                'record' => record.to_hash(:trusted),
-                                'uri' => record.uri
+                                'record' => record,
+                                'uri' => record.fetch('uri')
                               }
                             })
             rescue
@@ -121,12 +121,12 @@ class PeriodicIndexer < IndexerCommon
                 begin
                   index_records([
                                   {
-                                    'record' => record.to_hash(:trusted),
-                                    'uri' => record.uri
+                                    'record' => record,
+                                    'uri' => record.fetch('uri')
                                   }
                                 ])
                 rescue
-                  Log.error("Failure while indexing record: #{record.uri}: #{$!}")
+                  Log.error("Failure while indexing record: #{record.fetch('uri')}: #{$!}")
                   Log.exception($!)
                 end
               end
@@ -334,7 +334,17 @@ class PeriodicIndexer < IndexerCommon
 
 
   def fetch_records(type, ids, resolve)
-    JSONModel(type).all(:id_set => ids.join(","), 'resolve[]' => resolve)
+    uri = JSONModel(type).my_url(nil)
+    uri.query = URI.encode_www_form(:id_set => ids.join(","), 'resolve[]' => resolve)
+    response = JSONModel::HTTP.get_response(uri)
+
+    if response.code == '200'
+      ASUtils.json_parse(response.body)
+    elsif response.code == '403'
+      raise AccessDeniedException.new
+    else
+      raise response.body
+    end
   end
 
 end
