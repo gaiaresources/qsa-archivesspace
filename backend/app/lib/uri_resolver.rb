@@ -128,126 +128,57 @@ module URIResolver
         end
       }
 
-      # We'll work through our records breadth-first, first resolving non-nested
-      # properties, then those that are nested two-levels deep, then
-      # three-levels deep, and so on.
-      #
-      # With each iteration, we try to group together resolve requests for
-      # common record types to get as much bang for our SQL buck as possible.
-      depth = 1
-      while true
-        properties_for_current_depth = @properties_to_resolve.select {|property| property.length == depth}
+      records = JSON.parse(records.to_json)
 
-        break if properties_for_current_depth.empty?
+      pending_resolve = records
+      max_depth = @properties_to_resolve.map(&:length).max
 
-        refs_to_resolve = find_matching_refs(records, properties_for_current_depth)
+      max_depth.times do |depth|
+        property_set = Set.new(@properties_to_resolve.map {|properties| properties[depth]}.compact)
+
+        refs_to_resolve = find_matching_refs(pending_resolve, property_set)
 
         resolved = fetch_records_by_uri(refs_to_resolve.map {|ref| ref['ref']})
 
+        next_pending_resolve = []
+
         refs_to_resolve.each do |ref|
           uri = ref['ref']
-          ref['_resolved'] = resolved.fetch(uri) if resolved.has_key?(uri)
+          if resolved.has_key?(uri)
+            ref['_resolved'] = resolved.fetch(uri)
+            next_pending_resolve << ref['_resolved']
+          end
         end
 
-        depth += 1
+        pending_resolve = next_pending_resolve
       end
 
       # Return the same type we were given
       was_wrapped ? records[0] : records
     end
 
-
     private
 
-    # Find and return any refs matching our list of `properties`
-    #
-    # Unfortunately we don't have a restriction that properties start at the
-    # root of a record, so a property like "location" could appear at any level
-    # of the tree.  Unfortunately that makes the search more complicated.
-    #
-    def find_matching_refs(records, properties)
+    def find_matching_refs(to_search, property_set, last_key = nil)
       result = []
 
-      records.each do |record|
-        # Record is an object like {'uri' => ...}
-        properties.each do |property|
-          # Property is an array of keys like ['container', 'location', 'location_profile']
-          matches = [record]
-
-          property.each do |key|
-            matches = matches.map {|match| find_key_recursively(key, match)}.flatten(1)
+      if to_search.is_a?(Hash)
+        if to_search['ref']
+          if property_set.include?(last_key)
+            result << to_search
           end
-
-          matches.flatten.each do |match|
-            if is_ref?(match)
-              result << match
-            end
+        else
+          to_search.each do |k, v|
+            result.concat(find_matching_refs(v, property_set, k))
           end
+        end
+      elsif to_search.is_a?(Array)
+        to_search.each_with_index do |v, idx|
+          result.concat(find_matching_refs(v, property_set, last_key))
         end
       end
 
       result
-    end
-
-    # Search `record` (a hash or an array) for any hashes with an entry for
-    # `key`.  Return an array of the values corresponding to those keys.
-    #
-    # This is different to a standard hash lookup because the key might be found
-    # at any level of nesting, and the same key might even appear multiple times
-    # at different levels.  Here are some examples:
-    #
-    # Example 1
-    # ---------
-    # find_key_recursively('record_link',
-    #                      {
-    #                        'record_link' => {'ref' => '/uri/123'}
-    #                      })
-    #
-    # # Just finds the single 'record_link'
-    # => [{'ref' => '/uri/123'}]
-    #
-    #
-    # Example 2
-    # ---------
-    # find_key_recursively('record_link',
-    #                      [
-    #                        {
-    #                          'record_link' => {'ref' => '/uri/123'}
-    #                        },
-    #                        {
-    #                          'record_link' => {'ref' => '/uri/456'}
-    #                        }
-    #                      ])
-    #
-    # Finds the 'record_link' property in both places
-    # => [{'ref' => '/uri/123'}, {'ref' => '/uri/456'}]
-    #
-    #
-    # Example 3
-    # ---------
-    # find_key_recursively('record_link',
-    #                      {
-    #                        'record_link' => {'ref' => '/uri/123'},
-    #                        'related_records' => [
-    #                          {'title' => 'another record',
-    #                           'related_records' => [
-    #                             {'record_link' => {'ref' => '/uri/888'}},
-    #                             {'record_link' => {'ref' => '/uri/999'}}
-    #                           ]
-    #                          }
-    #                        ]
-    #                      })
-    # # Finds the 'record_link' property at the different levels of nesting
-    # => [{'ref' => '/uri/123'}, {'ref' => '/uri/888'}, {'ref' => '/uri/999'}]
-    #
-    def find_key_recursively(key, record)
-      if record.is_a?(Array)
-        record.map {|elt| find_key_recursively(key, elt)}.flatten(1)
-      elsif record.is_a?(Hash)
-        [record[key]].compact + find_key_recursively(key, record.values)
-      else
-        []
-      end
     end
 
     def fetch_records_by_uri(record_uris)
