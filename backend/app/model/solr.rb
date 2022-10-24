@@ -430,7 +430,7 @@ class Solr
         result['total_hits'] = json['response']['numFound']
 
         docs_to_pull_from_json_store = json['response']['docs']
-                                         .select {|doc| doc['json'].start_with?(JSONSTORE_PREFIX) }
+                                         .select {|doc| doc['json'].to_s.start_with?(JSONSTORE_PREFIX) }
                                          .map {|doc| build_jsonstore_id(doc)}
 
         json_blobs = @json_store.get_json(docs_to_pull_from_json_store)
@@ -439,7 +439,7 @@ class Solr
           doc['uri'] ||= doc['id']
           doc['jsonmodel_type'] = doc['primary_type']
 
-          if doc['json'].start_with?(JSONSTORE_PREFIX)
+          if doc['json'].to_s.start_with?(JSONSTORE_PREFIX)
             doc['json'] = json_blobs.fetch(build_jsonstore_id(doc))
           end
 
