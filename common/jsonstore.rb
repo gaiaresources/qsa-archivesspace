@@ -42,9 +42,20 @@
 # any record older than 24 hours at present).
 #
 
+found_libs = false
 
-require_relative 'lib/zstd-jni-1.5.2-4.jar'
-require_relative 'lib/sqlite-jdbc-3.39.3.0.jar'
+['lib', 'common/lib'].each do |prefix|
+  begin
+    require File.absolute_path(File.join(ASUtils.find_base_directory, prefix, 'zstd-jni-1.5.2-4.jar'))
+    require File.absolute_path(File.join(ASUtils.find_base_directory, prefix, 'sqlite-jdbc-3.39.3.0.jar'))
+    found_libs = true
+  rescue LoadError
+  end
+end
+
+unless found_libs
+  raise "Failed to load zstd & sqlite dependencies"
+end
 
 require 'sequel'
 
