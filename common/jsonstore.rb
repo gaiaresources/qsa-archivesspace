@@ -74,6 +74,10 @@ class JSONStore
     @db_path = path
     @write_lock = Mutex.new
 
+    @needs_schema = true
+  end
+
+  def create_schema!
     with_db do |db|
       db.create_table?(:record_location) do
         primary_key :record_location_id
@@ -113,6 +117,11 @@ class JSONStore
 
   def store_batch(uri_to_json, version)
     @write_lock.synchronize do
+      if @needs_schema
+        create_schema!
+        @needs_schema = false
+      end
+
       with_db do |db|
         db.transaction do |jdbc|
           # Not expecting this to happen in general, but just in case we get the same
