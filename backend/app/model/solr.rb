@@ -1,6 +1,7 @@
 require 'uri'
 require 'net/http'
 require 'advanced_search'
+require 'fileutils'
 
 class Solr
 
