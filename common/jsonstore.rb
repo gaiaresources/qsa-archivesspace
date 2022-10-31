@@ -156,7 +156,7 @@ class JSONStore
 
           db[:record_location].multi_insert(uri_to_json.keys.zip(staging_ids).map {|uri, staging_id| {:record_uri => uri, :version => version, :is_current => 1, :staging_id => staging_id}})
 
-          repack!(db)
+          repack!(db, jdbc)
         end
       end
     end
@@ -204,6 +204,10 @@ class JSONStore
 
   def with_db(&block)
     Sequel.connect("jdbc:sqlite:#{@db_path}") do |db|
+      db.transaction do |jdbc|
+        jdbc.setLimit(org.sqlite.SQLiteLimits::SQLITE_LIMIT_SQL_LENGTH, 1_000_000_000)
+      end
+
       db.run("PRAGMA journal_mode = WAL")
       block.call(db)
     end
@@ -239,7 +243,7 @@ class JSONStore
     com.github.luben.zstd.Zstd.decompress(block.to_java_bytes, original_size)
   end
 
-  def repack!(db)
+  def repack!(db, jdbc)
     if rand < 0.001
       max_age_ms = java.lang.System.currentTimeMillis - (EXPIRE_AGE_SECONDS * 1000)
 
@@ -281,7 +285,29 @@ class JSONStore
       if !undeleted_staging_entries.empty?
         block, original_size, record_offsets = build_block(undeleted_staging_entries)
 
-        block_id = db[:block].insert(:block => Sequel.blob(String.from_java_bytes(block)), :original_size => original_size)
+        # Replaced to avoid building giant SQL strings...
+        #
+        # block_id = db[:block].insert(:block => Sequel.blob(String.from_java_bytes(block)), :original_size => original_size)
+
+        insert_blob = jdbc.prepare_statement("insert into block (block, original_size) values (?, ?)",
+                                             java.sql.Statement::RETURN_GENERATED_KEYS)
+        insert_blob.setBytes(1, block)
+        insert_blob.setInt(2, original_size)
+        insert_blob.executeUpdate
+
+        rs = insert_blob.get_generated_keys
+
+        if rs.next
+          block_id = rs.get_int(1)
+        end
+
+        rs.close
+        insert_blob.close
+
+        if block_id.nil?
+          raise "Something went wrong insert block"
+        end
+
         db[:block_use_count].insert(:block_id => block_id, :count => undeleted_staging_entries.length)
 
         db[:record_location].filter(:staging_id => undeleted_staging_entries.map {|r| r[:staging_id]}).delete
