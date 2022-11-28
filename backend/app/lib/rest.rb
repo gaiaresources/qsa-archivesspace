@@ -531,7 +531,7 @@ module RESTHelpers
                provided_value.is_a?(bad[:type][0])
               # The caller got the right type but didn't wrap it in an array.
               # Provide a more useful error message.
-              msg << ".  Perhaps you meant to specify an array like: #{bad[:name]}[]=#{URI.escape(provided_value)}"
+              msg << ".  Perhaps you meant to specify an array like: #{bad[:name]}[]=#{URI.encode_www_form_component(provided_value)}"
             end
 
             result[bad[:name]] = [msg]
