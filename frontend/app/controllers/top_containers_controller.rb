@@ -209,7 +209,7 @@ class TopContainersController < ApplicationController
     begin
       results = perform_search
     rescue MissingFilterException
-      return render :plain => t('top_container._frontend.messages.filter_required'), :status => 500
+      return render :plain => t('top_container._frontend.messages.filter_required'), :status => 400
     end
 
     get_browse_col_prefs
