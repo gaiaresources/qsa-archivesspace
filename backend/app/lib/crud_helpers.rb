@@ -51,6 +51,9 @@ module CrudHelpers
     modified_since_time = Time.at(pagination_data[:modified_since])
     dataset = dataset.where { system_mtime >= modified_since_time }.order(*order)
 
+    modified_before_time = Time.at(pagination_data[:modified_before])
+    dataset = dataset.where { system_mtime < modified_before_time }
+
     if pagination_data[:page]
       # Classic pagination mode
       paginated = dataset.extension(:pagination).paginate(pagination_data[:page], pagination_data[:page_size])

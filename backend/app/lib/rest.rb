@@ -518,8 +518,11 @@ module RESTHelpers
 
 
       def process_pagination_params(params, known_params, errors, paged)
-        known_params['resolve'] = known_params['modified_since'] = true
+        known_params['resolve'] = known_params['modified_since'] = known_params['modified_before'] = true
         params['modified_since'] = coerce_type((params[:modified_since] || '0'),
+                                              NonNegativeInteger)
+
+        params['modified_before'] = coerce_type((params[:modified_before] || '4294967296'),
                                               NonNegativeInteger)
 
         known_params['sort_field'] = true
