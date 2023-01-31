@@ -201,9 +201,27 @@ class PeriodicIndexer < IndexerCommon
         # Find any records that might have been committed within the check window that
         # we missed on the last run.  For example, maybe we checked at T5 but at T7 a
         # commit happened that wrote an update with system_mtime=T3.  It can happen!
+        # Rows get timestamped at the point they're inserted/updated, but they might get
+        # committed seconds later than that.
+        #
+        # Note that we look backwards by the larger of @window_seconds (30 seconds at
+        # time of writing) and @time_to_sleep (which is however often the periodic
+        # indexer runs).  The thinking here is that we want to make sure the window is
+        # always long enough to cover a really slow database commit, so making sure it's
+        # no less than @window_seconds helps to ensure that.  That way, we still look
+        # back far enough, even if someone has set their indexer to poll once per
+        # second.
+        #
+        # BUT, if the indexing frequency is set to more than 30 seconds, we might as
+        # well look back over the entire time span of the last indexing run.  The extra
+        # cost is negligible, our bitset will avoid doing duplicate indexing work, and
+        # maybe it very occasionally catches a record that would have been missed
+        # otherwise..
+        #
+        modified_since_with_window = [0, @state.get_last_mtime(repository.id, type) - [@window_seconds, @time_to_sleep].max,].max
         ids_missed_on_last_run = load_bitset(JSONModel::HTTP.get_json(JSONModel(type).uri_for,
                                                                       :all_ids => true,
-                                                                      :modified_since => [0, @state.get_last_mtime(repository.id, type) - @window_seconds].max,
+                                                                      :modified_since => modified_since_with_window,
                                                                       :modified_before => @state.get_last_mtime(repository.id, type)))
 
         # Remove any IDs that we already indexed last time
