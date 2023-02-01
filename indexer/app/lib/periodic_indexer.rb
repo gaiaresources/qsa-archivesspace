@@ -225,7 +225,7 @@ class PeriodicIndexer < IndexerCommon
                                                                       :modified_before => @state.get_last_mtime(repository.id, type)))
 
         # Remove any IDs that we already indexed last time
-        ids_missed_on_last_run.andNot(IDS_INDEXED_ON_LAST_RUN.fetch(type) { java.util.BitSet.new })
+        ids_missed_on_last_run.andNot(IDS_INDEXED_ON_LAST_RUN.fetch([repository.id, type]) { java.util.BitSet.new })
 
         # we get all the ids of this record type out of the repo
         id_set = JSONModel::HTTP.get_json(JSONModel(type).uri_for, :all_ids => true, :modified_since => @state.get_last_mtime(repository.id, type)) || ''
@@ -303,7 +303,7 @@ class PeriodicIndexer < IndexerCommon
         if worker_statuses.include?(WORKER_STATUS_INDEX_ERROR)
           Log.info("Skipping update of indexer state for record type #{type} in repository #{repository.id} due to previous failures")          
         else
-          IDS_INDEXED_ON_LAST_RUN[type] = load_bitset(id_set)
+          IDS_INDEXED_ON_LAST_RUN[[repository.id, type]] = load_bitset(id_set)
           @state.set_last_mtime(repository.id, type, start)
         end
       end
