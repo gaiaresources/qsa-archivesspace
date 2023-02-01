@@ -1372,6 +1372,8 @@ end
 
 ASUtils.find_local_directories('indexer').each do |dir|
   Dir.glob(File.join(dir, "*.rb")).sort.each do |file|
+    next if File.basename(file) == 'plugin_init.rb'
+
     require file
   end
 end
