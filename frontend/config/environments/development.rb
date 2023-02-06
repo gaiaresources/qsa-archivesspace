@@ -41,6 +41,8 @@ ArchivesSpace::Application.configure do
   # differently there due to precompilation.
   config.assets.prefix = AppConfig[:frontend_proxy_prefix] + "assets"
 
+  # Don't load streaming responses fully into memory.  Geez.
+  config.middleware.delete ::Rack::ETag
 end
 
 
