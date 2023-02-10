@@ -275,14 +275,20 @@ class TopContainer < Sequel::Model(:top_container)
         uri = doc.fetch('uri')
         jsonstore_id = doc.fetch('json')
 
+        if doc['json'].to_s.start_with?(Solr::JSONSTORE_PREFIX)
         JSONStore::RecordVersion.new(uri, Integer(jsonstore_id.split(':').last))
+        else
+          :old_record
+        end
       }
 
-      json_records = json_store.get_json(versions)
+      json_records = json_store.get_json(versions.reject {|v| v == :old_record})
 
       docs.zip(versions).each do |doc, version|
+        if version != :old_record
         doc['json'] = json_records.fetch(version)
       end
+    end
     end
 
     ASUtils.to_json(result)
