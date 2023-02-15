@@ -12,6 +12,9 @@ class ProgressTicker
     @results = Atomic.new({})
     @finished = Atomic.new(false)
 
+    @lock = java.util.concurrent.locks.ReentrantLock.new
+    @waiter = @lock.new_condition
+
     context = RequestContext.dump
     @block = proc {|ticker|
       RequestContext.open(context) do
@@ -39,16 +42,16 @@ class ProgressTicker
   end
 
   def status_update(type, status)
-    @status_updates.update {|val| val + [status.merge(:type => type)] }
+    @status_updates.update{|val| val + [status.merge(:type => type)] }
   end
-
-
+  
+  
   def results=(result_hash)
     raise "bad argument: #{result_hash}" unless result_hash.is_a?(Hash)
     @results.update {|val| result_hash }
   end
-
-
+  
+  
   def results?
     return @results.value.empty? ? false : true
   end
@@ -56,10 +59,16 @@ class ProgressTicker
 
   def finish!
     @finished.update {|val| true}
+    @lock.lock
+    begin
+      @waiter.signal_all
+    ensure
+      @lock.unlock
+    end
     @tick_to_client_thread.join if @tick_to_client_thread
   end
-
-
+  
+  
   def finished?
     @finished.value
   end
@@ -72,11 +81,11 @@ class ProgressTicker
       client.call(ASUtils.to_json(:status => updates) + ",\n")
     end
   end
-
+  
 
   def flush_results(client)
     results = @results.swap({})
-
+    
     unless results.empty?
       client.call(ASUtils.to_json(results) + "\n")
     end
@@ -95,7 +104,14 @@ class ProgressTicker
           client.call(ASUtils.to_json(tick_for_client) + ",\n")
         end
 
-        sleep @frequency
+        @lock.lock
+        begin
+          @waiter.await(@frequency, java.util.concurrent.TimeUnit::SECONDS)
+        rescue
+          # OK...
+        ensure
+          @lock.unlock
+        end
       end
 
       flush_statuses(client)
