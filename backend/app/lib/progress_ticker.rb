@@ -12,6 +12,9 @@ class ProgressTicker
     @results = Atomic.new({})
     @finished = Atomic.new(false)
 
+    @lock = java.util.concurrent.locks.ReentrantLock.new
+    @waiter = @lock.new_condition
+
     context = RequestContext.dump
     @block = proc {|ticker|
       RequestContext.open(context) do
@@ -56,6 +59,12 @@ class ProgressTicker
 
   def finish!
     @finished.update {|val| true}
+    @lock.lock
+    begin
+      @waiter.signal_all
+    ensure
+      @lock.unlock
+    end
     @tick_to_client_thread.join if @tick_to_client_thread
   end
   
@@ -81,7 +90,7 @@ class ProgressTicker
       client.call(ASUtils.to_json(results) + "\n")
     end
   end
-      
+
 
   def each(&client)
     @tick_to_client_thread = Thread.new do
@@ -95,7 +104,14 @@ class ProgressTicker
           client.call(ASUtils.to_json(tick_for_client) + ",\n")
         end
 
-        sleep @frequency
+        @lock.lock
+        begin
+          @waiter.await(@frequency, java.util.concurrent.TimeUnit::SECONDS)
+        rescue
+          # OK...
+        ensure
+          @lock.unlock
+        end
       end
 
       flush_statuses(client)
