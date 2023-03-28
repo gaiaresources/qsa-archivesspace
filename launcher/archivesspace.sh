@@ -177,7 +177,7 @@ case "$1" in
             $shellcmd -c "cd '$ASPACE_LAUNCHER_BASE';
           (
              exec 0<&-; exec 1>&-; exec 2>&-;
-             ($startup_cmd & echo \$! >\"$ASPACE_PIDFILE\") 2>&1 | scripts/log-rotater.pl \"logs/%a.log\" \"$ARCHIVESSPACE_LOGS\" &
+             ($startup_cmd & echo \$! >\"$ASPACE_PIDFILE\") 2>&1 | scripts/log-rotater.pl \"logs/%m-%d.log\" \"$ARCHIVESSPACE_LOGS\" &
           ) &
           disown $!"
         fi
