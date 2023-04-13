@@ -99,7 +99,7 @@ describe "Groups" do
 
 
   it "can get a list of usernames matching a string" do
-    @driver.get(URI.join($frontend, "/users/complete?query=#{URI.escape(@user.username)}"))
+    @driver.get(URI.join($frontend, "/users/complete?query=#{URI.encode_www_form_component(@user.username)}"))
     @driver.page_source.should match(/#{@user.username}/)
     @driver.get(URI.join($frontend))
   end

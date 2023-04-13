@@ -107,8 +107,8 @@ class PeriodicIndexer < IndexerCommon
               # Happy path: index all of our records in one shot
               index_records(records.map {|record|
                               {
-                                'record' => record.to_hash(:trusted),
-                                'uri' => record.uri
+                                'record' => record,
+                                'uri' => record.fetch('uri')
                               }
                             })
             rescue
@@ -121,12 +121,12 @@ class PeriodicIndexer < IndexerCommon
                 begin
                   index_records([
                                   {
-                                    'record' => record.to_hash(:trusted),
-                                    'uri' => record.uri
+                                    'record' => record,
+                                    'uri' => record.fetch('uri')
                                   }
                                 ])
                 rescue
-                  Log.error("Failure while indexing record: #{record.uri}: #{$!}")
+                  Log.error("Failure while indexing record: #{record.fetch('uri')}: #{$!}")
                   Log.exception($!)
                 end
               end
@@ -145,8 +145,24 @@ class PeriodicIndexer < IndexerCommon
   end
 
 
+  def load_bitset(ids)
+    result = java.util.BitSet.new
+
+    ids.each do |id|
+      result.set(id)
+    end
+
+    result
+  end
+
   def run_index_round
     log("Running index round")
+
+    # Keep track of the set of IDs that were indexed for each record type during the
+    # previous indexing run.  We use this to avoid double-indexing records that were
+    # changed within the @window_seconds commit window when indexing large numbers
+    # of changes.
+    @ids_indexed_on_last_run ||= {}
 
     login
 
@@ -181,10 +197,44 @@ class PeriodicIndexer < IndexerCommon
         next if @@global_types.include?(type) && i > 0
         start = Time.now
 
-        modified_since = [@state.get_last_mtime(repository.id, type) - @window_seconds, 0].max
+        # Find any records that might have been committed within the check window that
+        # we missed on the last run.  For example, maybe we checked at T5 but at T7 a
+        # commit happened that wrote an update with system_mtime=T3.  It can happen!
+        # Rows get timestamped at the point they're inserted/updated, but they might get
+        # committed seconds later than that.
+        #
+        # Note that we look backwards by the larger of @window_seconds (30 seconds at
+        # time of writing) and @time_to_sleep (which is however often the periodic
+        # indexer runs).  The thinking here is that we want to make sure the window is
+        # always long enough to cover a really slow database commit, so making sure it's
+        # no less than @window_seconds helps to ensure that.  That way, we still look
+        # back far enough, even if someone has set their indexer to poll once per
+        # second.
+        #
+        # BUT, if the indexing frequency is set to more than 30 seconds, we might as
+        # well look back over the entire time span of the last indexing run.  The extra
+        # cost is negligible, our bitset will avoid doing duplicate indexing work, and
+        # maybe it very occasionally catches a record that would have been missed
+        # otherwise..
+        #
+        modified_since_with_window = [0, @state.get_last_mtime(repository.id, type) - [@window_seconds, @time_to_sleep].max,].max
+        ids_missed_on_last_run = load_bitset(JSONModel::HTTP.get_json(JSONModel(type).uri_for,
+                                                                      :all_ids => true,
+                                                                      :modified_since => modified_since_with_window,
+                                                                      :modified_before => @state.get_last_mtime(repository.id, type)))
+
+        # Remove any IDs that we already indexed last time
+        ids_missed_on_last_run.andNot(@ids_indexed_on_last_run.fetch([repository.id, type]) { java.util.BitSet.new })
 
         # we get all the ids of this record type out of the repo
-        id_set = JSONModel::HTTP.get_json(JSONModel(type).uri_for, :all_ids => true, :modified_since => modified_since) || ''
+        id_set = JSONModel::HTTP.get_json(JSONModel(type).uri_for, :all_ids => true, :modified_since => @state.get_last_mtime(repository.id, type)) || ''
+
+        # Index ids_missed_on_last_run too.
+        ids_missed_on_last_run.size.times do |i|
+          if ids_missed_on_last_run.get(i)
+            id_set << i
+          end
+        end
 
         skip_file = "/tmp/skip_#{type}_index_ids.dat"
         ids_to_skip = []
@@ -205,8 +255,6 @@ class PeriodicIndexer < IndexerCommon
         end
 
         id_set -= ids_to_skip
-
-        next if id_set.empty?
 
         indexed_count = 0
 
@@ -248,13 +296,13 @@ class PeriodicIndexer < IndexerCommon
         # Commit if anything was added to Solr
         unless worker_statuses.all? {|status| status == WORKER_STATUS_NOTHING_INDEXED}
           send_commit
+          log("Indexed #{id_set.length} records in #{Time.now.to_i - start.to_i} seconds")
         end
 
-        log("Indexed #{id_set.length} records in #{Time.now.to_i - start.to_i} seconds")
-
         if worker_statuses.include?(WORKER_STATUS_INDEX_ERROR)
-          Log.info("Skipping update of indexer state for record type #{type} in repository #{repository.id} due to previous failures")          
+          Log.info("Skipping update of indexer state for record type #{type} in repository #{repository.id} due to previous failures")
         else
+          @ids_indexed_on_last_run[[repository.id, type]] = load_bitset(id_set)
           @state.set_last_mtime(repository.id, type, start)
         end
       end
@@ -334,7 +382,17 @@ class PeriodicIndexer < IndexerCommon
 
 
   def fetch_records(type, ids, resolve)
-    JSONModel(type).all(:id_set => ids.join(","), 'resolve[]' => resolve)
+    uri = JSONModel(type).my_url(nil)
+    uri.query = URI.encode_www_form(:id_set => ids.join(","), 'resolve[]' => resolve)
+    response = JSONModel::HTTP.get_response(uri)
+
+    if response.code == '200'
+      ASUtils.json_parse(response.body)
+    elsif response.code == '403'
+      raise AccessDeniedException.new
+    else
+      raise response.body
+    end
   end
 
 end
