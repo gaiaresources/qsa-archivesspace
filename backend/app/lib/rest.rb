@@ -411,10 +411,14 @@ module RESTHelpers
 
 
       def process_pagination_params(params, known_params, errors)
-        known_params['resolve'] = known_params['modified_since'] = true
+        known_params['resolve'] = known_params['modified_since'] = known_params['modified_before'] = true
 
         params['modified_since'] = coerce_type((params[:modified_since] || '0'),
                                               NonNegativeInteger)
+
+        params['modified_before'] = coerce_type((params[:modified_before] || '4294967296'),
+                                              NonNegativeInteger)
+
 
         if params[:page]
           known_params['page_size'] = known_params['page'] = true
@@ -531,7 +535,7 @@ module RESTHelpers
                provided_value.is_a?(bad[:type][0])
               # The caller got the right type but didn't wrap it in an array.
               # Provide a more useful error message.
-              msg << ".  Perhaps you meant to specify an array like: #{bad[:name]}[]=#{URI.escape(provided_value)}"
+              msg << ".  Perhaps you meant to specify an array like: #{bad[:name]}[]=#{URI.encode_www_form_component(provided_value)}"
             end
 
             result[bad[:name]] = [msg]

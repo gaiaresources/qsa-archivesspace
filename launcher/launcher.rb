@@ -154,10 +154,12 @@ def main
 
   begin
 	  aspace_base = java.lang.System.get_property("ASPACE_LAUNCHER_BASE")
-    start_server(URI(AppConfig[:backend_url]).port, {:war => File.join(aspace_base, 'wars', 'backend.war'), :path => '/'}) if AppConfig[:enable_backend]
+
 
     start_server(URI(AppConfig[:solr_url]).port,
                  {:war => File.join(aspace_base,'wars', 'solr.war'), :path => '/'}) if AppConfig[:enable_solr]
+
+    start_server(URI(AppConfig[:backend_url]).port, {:war => File.join(aspace_base, 'wars', 'backend.war'), :path => '/'}) if AppConfig[:enable_backend]
 
     start_server(URI(AppConfig[:indexer_url]).port,
                  {:war => File.join(aspace_base,'wars', 'indexer.war'), :path => '/aspace-indexer'}) if AppConfig[:enable_indexer]

@@ -117,7 +117,7 @@ class TopContainersController < ApplicationController
     begin
       results = perform_search
     rescue MissingFilterException
-      return render :text => I18n.t("top_container._frontend.messages.filter_required"), :status => 500
+      return render :text => I18n.t("top_container._frontend.messages.filter_required"), :status => 400
     end
 
     render_aspace_partial :partial => "top_containers/bulk_operations/results", :locals => {:results => results}
