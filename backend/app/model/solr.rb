@@ -1,11 +1,13 @@
 require 'uri'
 require 'net/http'
 require 'advanced_search'
+require 'fileutils'
 
 class Solr
 
   @@search_hooks ||= []
 
+  @json_store ||= JSONStore.new(File.join(AppConfig[:solr_index_directory], "index/jsonstore.db"))
 
   def self.add_search_hook(&block)
     @@search_hooks << block
@@ -295,7 +297,11 @@ class Solr
 
   end
 
+  JSONSTORE_PREFIX = "jsonstore:"
 
+  def self.build_jsonstore_id(doc)
+    JSONStore::RecordVersion.new(doc['id'], Integer(doc['json'][JSONSTORE_PREFIX.length..-1]))
+  end
 
   def self.search(query)
 
@@ -310,7 +316,7 @@ class Solr
 
       if solr_response.code == '200'
         return solr_response.body unless query.get_writer_type == "json" 
-        json = ASUtils.json_parse(solr_response.body)
+       json = ASUtils.json_parse(solr_response.body)
 
         result = {}
 
@@ -325,9 +331,20 @@ class Solr
         result['offset_last'] = [(json['response']['start'] + page_size), json['response']['numFound']].min
         result['total_hits'] = json['response']['numFound']
 
+        docs_to_pull_from_json_store = json['response']['docs']
+                                         .select {|doc| doc['json'].to_s.start_with?(JSONSTORE_PREFIX) }
+                                         .map {|doc| build_jsonstore_id(doc)}
+
+        json_blobs = @json_store.get_json(docs_to_pull_from_json_store)
+
         result['results'] = json['response']['docs'].map {|doc|
           doc['uri'] ||= doc['id']
           doc['jsonmodel_type'] = doc['primary_type']
+
+          if doc['json'].to_s.start_with?(JSONSTORE_PREFIX)
+            doc['json'] = json_blobs.fetch(build_jsonstore_id(doc))
+          end
+
           doc
         }
 

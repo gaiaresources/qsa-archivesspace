@@ -6,6 +6,8 @@ require 'tempfile'
 
 class IndexBatch
 
+  attr_reader :json_blobs_by_id, :json_version
+
   SEPARATORS = [",\n", "]\n"]
 
   def initialize
@@ -21,6 +23,9 @@ class IndexBatch
 
     # Don't mess up our line breaks under Windows!
     @filestore.binmode
+
+    @json_version = java.lang.System.currentTimeMillis
+    @json_blobs_by_id = {}
 
     self.write("[\n")
   end
@@ -51,6 +56,11 @@ class IndexBatch
       @record_info_by_primary_type[primary_type] ||= []
       @record_info_by_primary_type[primary_type] << {id: doc['id']}
     end
+
+    json_blob = doc.delete('json')
+    doc['json'] = "jsonstore:#{@json_version}"
+
+    @json_blobs_by_id[doc['id']] = json_blob
 
     json = ASUtils.to_json(doc)
 

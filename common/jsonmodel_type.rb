@@ -108,7 +108,7 @@ class JSONModelType
     uri = self.schema['uri']
 
     if not id.nil?
-      uri += "/#{URI.escape(id.to_s)}"
+      uri += "/#{URI.encode_www_form_component(id.to_s)}"
     end
 
     self.substitute_parameters(uri, opts)
@@ -404,7 +404,7 @@ class JSONModelType
     matched = []
     opts.each do |k, v|
       old = uri
-      uri = uri.gsub(":#{k}", URI.escape(v.to_s))
+      uri = uri.gsub(":#{k}", URI.encode_www_form_component(v.to_s))
 
       if old != uri
 

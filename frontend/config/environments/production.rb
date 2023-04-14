@@ -96,6 +96,8 @@ ArchivesSpace::Application.configure do
   config.assets.precompile << 'tablesorter/bootstrap'
   config.assets.precompile << '\.(gif|png|jpg)\z/'
 
+  # Don't load streaming responses fully into memory.  Geez.
+  config.middleware.delete ::Rack::ETag
 end
 
 

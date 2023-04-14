@@ -38,6 +38,8 @@ require 'active_support/inflector'
 
 require 'rack/tempfile_reaper'
 
+require 'jsonstore'
+
 class ArchivesSpaceService < Sinatra::Base
 
   include URIResolver

@@ -250,6 +250,35 @@ class TopContainer < Sequel::Model(:top_container)
     self.class.update_mtime_for_ids([self.id])
   end
 
+  def self.load_json_from_store(body)
+    json_store = JSONStore.new(File.join(AppConfig[:solr_index_directory], "index/jsonstore.db"))
+
+    result = JSON.parse(body)
+
+    result.fetch('response').fetch('docs').each_slice(256) do |docs|
+      versions = docs.map {|doc|
+        uri = doc.fetch('uri')
+        jsonstore_id = doc.fetch('json')
+
+        if doc['json'].to_s.start_with?(Solr::JSONSTORE_PREFIX)
+          JSONStore::RecordVersion.new(uri, Integer(jsonstore_id.split(':').last))
+        else
+          :old_record
+        end
+      }
+
+      json_records = json_store.get_json(versions.reject {|v| v == :old_record})
+
+      docs.zip(versions).each do |doc, version|
+        if version != :old_record
+          doc['json'] = json_records.fetch(version)
+        end
+      end
+    end
+
+    ASUtils.to_json(result)
+  end
+
   def self.search_stream(params, repo_id, &block)
     query = if params[:q]
               Solr::Query.create_keyword_search(params[:q])
@@ -280,6 +309,8 @@ class TopContainer < Sequel::Model(:top_container)
         if response.code =~ /^4/
           raise response.body
         end
+
+        response.body = load_json_from_store(response.body)
 
         block.call(response)
       end

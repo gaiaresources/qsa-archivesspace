@@ -55,6 +55,9 @@ GEM
       aws-sdk-core (~> 3, >= 3.53.0)
       aws-sdk-kms (~> 1)
       aws-sigv4 (~> 1.1)
+    aws-sdk-sqs (1.16.0)
+      aws-sdk-core (~> 3, >= 3.53.0)
+      aws-sigv4 (~> 1.1)
     aws-sigv4 (1.1.0)
       aws-eventstream (~> 1.0, >= 1.0.2)
     builder (3.2.3)
@@ -89,7 +92,7 @@ GEM
       thor (>= 0.14, < 2.0)
     jquery-ui-rails (6.0.1)
       railties (>= 3.2.16)
-    jruby-jars (9.1.17.0)
+    jruby-jars (9.2.21.0)
     json (1.8.6-java)
     json-schema (1.0.10)
     less (2.6.0)
@@ -107,6 +110,9 @@ GEM
     mail (2.7.1)
       mini_mime (>= 0.1.1)
     method_source (0.8.2)
+    mime-types (3.4.1)
+      mime-types-data (~> 3.2015)
+    mime-types-data (3.2021.1115)
     mini_mime (1.0.1)
     minitest (5.11.3)
     mizuno (0.6.11)
@@ -248,6 +254,7 @@ DEPENDENCIES
   activesupport (= 5.0.1)
   atomic (= 1.0.1)
   aws-sdk-s3
+  aws-sdk-sqs
   coffee-rails (= 4.2.1)
   coffee-script
   coffee-script-source
@@ -255,12 +262,13 @@ DEPENDENCIES
   i18n (= 0.9.1)
   jquery-rails
   jquery-ui-rails
-  jruby-jars (= 9.1.17.0)
+  jruby-jars (= 9.2.21.0)
   json (= 1.8.6)
   json-schema (= 1.0.10)
   less-rails-bootstrap
   loofah (>= 2.2.3)
   mail
+  mime-types
   mizuno (= 0.6.11)
   multi_json (~> 1.13.1)
   multipart-post (= 1.2.0)

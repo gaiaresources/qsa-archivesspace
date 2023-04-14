@@ -170,6 +170,31 @@ module JSONModel
     end
 
 
+    def self.stream_post_json(uri, json, &block)
+      uri = URI("#{backend_url}#{uri}")
+      req = Net::HTTP::Post.new(uri.request_uri)
+      req['Content-Type'] = 'text/json'
+      req.body = json
+
+      req['X-ArchivesSpace-Session'] = current_backend_session
+
+      if high_priority?
+        req['X-ArchivesSpace-Priority'] = "high"
+      end
+
+      ASHTTP.start_uri(uri) do |http|
+        http.request(req, nil) do |response|
+          if response.code =~ /^4/
+            JSONModel::handle_error(ASUtils.json_parse(response.body))
+            raise response.body
+          end
+
+          block.call(response)
+        end
+      end
+    end
+
+
     def self.get_json(uri, params = {})
       if params.respond_to?(:to_unsafe_hash)
         params = params.to_unsafe_hash
