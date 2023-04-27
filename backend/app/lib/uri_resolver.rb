@@ -167,10 +167,9 @@ module URIResolver
           if property_set.include?(last_key)
             result << to_search
           end
-        else
-          to_search.each do |k, v|
-            result.concat(find_matching_refs(v, property_set, k))
-          end
+        end
+        to_search.each do |k, v|
+          result.concat(find_matching_refs(v, property_set, k))
         end
       elsif to_search.is_a?(Array)
         to_search.each_with_index do |v, idx|
