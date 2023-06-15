@@ -174,6 +174,34 @@ module JSONModel
       end
     end
 
+    def self.stream_post_form(uri, params = {}, encoding = :x_www_form_urlencoded, &block)
+      uri = URI("#{backend_url}#{uri}")
+
+      req = if encoding == :x_www_form_urlencoded
+              self.form_urlencoded(uri.request_uri, params)
+            elsif encoding == :multipart_form_data
+              self.multipart_request(uri.request_uri, params)
+            else
+              raise "Unknown form encoding: #{encoding.inspect}"
+            end
+
+      req['X-ArchivesSpace-Session'] = current_backend_session
+
+      if high_priority?
+        req['X-ArchivesSpace-Priority'] = "high"
+      end
+
+      ASHTTP.start_uri(uri) do |http|
+        http.request(req, nil) do |response|
+          if response.code =~ /^4/
+            JSONModel::handle_error(ASUtils.json_parse(response.body))
+            raise response.body
+          end
+
+          block.call(response)
+        end
+      end
+    end
 
     def self.stream_post_json(uri, json, &block)
       uri = URI("#{backend_url}#{uri}")
