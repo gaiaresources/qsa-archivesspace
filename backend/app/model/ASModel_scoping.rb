@@ -108,6 +108,11 @@ module ASModel
           raise "Failure for #{self}: Model scope must be set as :repository or :global"
         end
 
+        if self.dataset.respond_to?(:this_repo)
+          # We've already configured this dataset.  Hot reloading probably got us here a second time.
+          return
+        end
+
         if value == :repository
           model = self
           orig_ds = self.dataset.clone
