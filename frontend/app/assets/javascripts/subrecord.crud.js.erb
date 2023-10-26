@@ -64,7 +64,8 @@ $(function () {
           };
 
           if (
-            $subform.closest('.subrecord-form').data('remove') != 'disabled'
+            $subform.closest('.subrecord-form').data('remove') != 'disabled' &&
+              ($this.data("remove") != "disabled")
           ) {
             addRemoveButton();
           }
