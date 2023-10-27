@@ -18,7 +18,7 @@ class SubjectsController < ApplicationController
         search_params = params_for_backend_search.merge({ "sort" => "title_sort asc",  "facet[]" => SearchResultData.SUBJECT_FACETS})
         search_params['type[]'] = 'subject'
         uri = "/repositories/#{session[:repo_id]}/search"
-        csv_response( uri, search_params )
+        csv_response( uri, Search.build_filters(search_params ), 'subjects.')
       }  
     end 
   end
