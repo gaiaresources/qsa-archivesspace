@@ -4,7 +4,7 @@ require 'atomic'
 class ProgressTicker
 
   def initialize(opts = {}, &block)
-    @frequency = opts[:frequency_seconds] || 5
+    @frequency = (opts[:frequency_seconds] || 5) * 1000
     @ticks = 0
 
     @last_tick = Atomic.new(nil)
@@ -106,7 +106,7 @@ class ProgressTicker
 
         @lock.lock
         begin
-          @waiter.await(@frequency, java.util.concurrent.TimeUnit::SECONDS)
+          @waiter.await(@frequency, java.util.concurrent.TimeUnit::MILLISECONDS)
         rescue
           # OK...
         ensure
