@@ -74,6 +74,9 @@ class JSONStore
     @db_path = path
     @write_lock = Mutex.new
 
+    @store_batch_queue = java.util.concurrent.LinkedBlockingQueue.new
+    @store_batch_queue_counter = java.util.concurrent.atomic.AtomicLong.new(0)
+
     @needs_schema = true
   end
 
@@ -115,46 +118,74 @@ class JSONStore
     end
   end
 
-  def store_batch(uri_to_json, version)
+  def store_batch(uri_to_json, my_version)
+    rows = []
+    uri_to_json.each do |uri, json|
+      compressed = com.github.luben.zstd.Zstd.compress(json.to_java.get_bytes("UTF-8"))
+
+      rows << {:record_uri => uri, :json => compressed, :original_size => json.bytesize}
+    end
+
+    # Add our rows to the work queue
+    my_number = @store_batch_queue_counter.incrementAndGet
+    @store_batch_queue.put({
+        :queue_number => my_number,
+        :version => my_version,
+        :rows => rows
+      })
+
     @write_lock.synchronize do
       if @needs_schema
         create_schema!
         @needs_schema = false
       end
 
+      needs_processing = (next_to_process = @store_batch_queue.peek) && next_to_process[:queue_number] <= my_number
+
+      # Another thread got in first and handled our records for us!  Drop out early.
+      if !needs_processing
+        return
+      end
+
+      # Process everything currently in the queue
+      to_process = []
+      while @store_batch_queue.peek
+        to_process << @store_batch_queue.take
+      end
+
       with_db do |db|
         db.transaction do |jdbc|
-          # Not expecting this to happen in general, but just in case we get the same
-          # record in the same instant.
-          db[:record_location].filter(:record_uri => uri_to_json.keys, :version => version).delete
-          db[:record_location].filter(:record_uri => uri_to_json.keys, :is_current => 1).update(:is_current => 0)
+          to_process.each do |process_entry|
+            version = process_entry.fetch(:version)
+            record_uris = process_entry.fetch(:rows).map{|row| row.fetch(:record_uri)}
 
-          rows = []
-          uri_to_json.each do |uri, json|
-            compressed = com.github.luben.zstd.Zstd.compress(json.to_java.get_bytes("UTF-8"))
+            # Not expecting this to happen in general, but just in case we get the same
+            # record in the same instant.
+            db[:record_location].filter(:record_uri => record_uris, :version => version).delete
+            db[:record_location].filter(:record_uri => record_uris, :is_current => 1).update(:is_current => 0)
 
-            rows << {:record_uri => uri, :json => compressed, :original_size => json.bytesize}
-          end
+            insert_blobs = jdbc.prepareStatement("insert into staging (record_uri, json, original_size) values (?, ?, ?)",
+                                                 java.sql.Statement::RETURN_GENERATED_KEYS)
 
-          insert_blobs = jdbc.prepareStatement("insert into staging (record_uri, json, original_size) values (?, ?, ?)",
-                                               java.sql.Statement::RETURN_GENERATED_KEYS)
+            staging_ids = []
+            process_entry.fetch(:rows).each do |row|
+              insert_blobs.setString(1, row.fetch(:record_uri))
+              insert_blobs.setBytes(2, row.fetch(:json))
+              insert_blobs.setInt(3, row.fetch(:original_size))
 
-          staging_ids = []
-          rows.each do |row|
-            insert_blobs.setString(1, row.fetch(:record_uri))
-            insert_blobs.setBytes(2, row.fetch(:json))
-            insert_blobs.setInt(3, row.fetch(:original_size))
+              insert_blobs.executeUpdate
 
-            insert_blobs.executeUpdate
+              rs = insert_blobs.get_generated_keys
 
-            rs = insert_blobs.get_generated_keys
-
-            while rs.next
-              staging_ids << rs.get_int(1)
+              while rs.next
+                staging_ids << rs.get_int(1)
+              end
             end
-          end
 
-          db[:record_location].multi_insert(uri_to_json.keys.zip(staging_ids).map {|uri, staging_id| {:record_uri => uri, :version => version, :is_current => 1, :staging_id => staging_id}})
+            db[:record_location].multi_insert(record_uris.zip(staging_ids).map {|uri, staging_id| {:record_uri => uri, :version => version, :is_current => 1, :staging_id => staging_id}})
+
+            insert_blobs.close
+          end
 
           repack!(db, jdbc)
         end
