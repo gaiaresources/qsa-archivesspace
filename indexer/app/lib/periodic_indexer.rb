@@ -31,11 +31,7 @@ class PeriodicIndexer < IndexerCommon
     @thread_count = config(:indexer_thread_count).to_i
     @records_per_thread = config(:indexer_records_per_thread).to_i
 
-    # Space out our request threads a little, such that half the threads are
-    # waiting on the backend while the other half are mapping documents &
-    # indexing.
-    concurrent_requests = (@thread_count <= 2) ? @thread_count : (@thread_count.to_f / 2).ceil
-    @backend_fetch_sem = java.util.concurrent.Semaphore.new(concurrent_requests)
+    @worker_thread_helpers = java.util.concurrent.Executors.newCachedThreadPool
 
     @timing = IndexerTiming.new
   end
@@ -43,6 +39,55 @@ class PeriodicIndexer < IndexerCommon
   WORKER_STATUS_NOTHING_INDEXED = 0
   WORKER_STATUS_INDEX_SUCCESS = 1
   WORKER_STATUS_INDEX_ERROR = 2
+
+  class CallableTask
+    include java.util.concurrent.Callable
+
+    def initialize(&block)
+      @block = block
+    end
+
+    def call
+      @block.call
+    end
+  end
+
+  def async_fetch_records(repo_id, session, record_type, id_subset, resolved_attributes)
+    @worker_thread_helpers.submit(CallableTask.new do
+        # Inherit the repo_id and user session from the parent thread
+        JSONModel.set_repository(repo_id)
+        JSONModel::HTTP.current_backend_session = session
+
+        records = @timing.time_block(:record_fetch_ms) do
+          # Happy path: we request all of our records in one shot and
+          # everything goes to plan.
+          begin
+            fetch_records(record_type, id_subset, resolved_attributes)
+          rescue
+            worker_status = WORKER_STATUS_INDEX_ERROR
+
+            # Sad path: the fetch failed for some reason, possibly because
+            # one or more records are malformed and triggering a bug
+            # somewhere.  Recover as best we can by fetching records
+            # individually.
+            salvaged_records = []
+
+            id_subset.each do |id|
+              begin
+                salvaged_records << fetch_records(record_type, [id], resolved_attributes)[0]
+              rescue
+                # Not seeing new workers get started?
+                Log.error("Failed fetching #{record_type} id=#{id}: #{$!}")
+              end
+            end
+
+            salvaged_records
+          end
+        end
+
+        records
+      end)
+  end
 
   def start_worker_thread(queue, record_type)
     repo_id = JSONModel.repository
@@ -54,83 +99,73 @@ class PeriodicIndexer < IndexerCommon
       worker_status = WORKER_STATUS_NOTHING_INDEXED
 
       begin
-        # Inherit the repo_id and user session from the parent thread
-        JSONModel.set_repository(repo_id)
-        JSONModel::HTTP.current_backend_session = session
-
         while true
-          id_subset = queue.poll(10000, java.util.concurrent.TimeUnit::MILLISECONDS)
+          ids = queue.poll(10000, java.util.concurrent.TimeUnit::MILLISECONDS)
 
           # If the parent thread has finished, it should have pushed a :finished
           # token.  But if we time out after a reasonable amount of time, assume
           # it isn't coming back.
-          break if (id_subset == :finished || id_subset.nil?)
+          break if (ids == :finished || ids.nil?)
 
-          records = @timing.time_block(:record_fetch_ms) do
-            @backend_fetch_sem.acquire
-            begin
-              # Happy path: we request all of our records in one shot and
-              # everything goes to plan.
+          # Break up our IDs into the slices that we'll overlap.  The number of
+          # slices just needs to be >= 2, but when I timed it 4 was the sweet
+          # spot on my machine, so we'll take it!
+          slices = ids.each_slice((ids.length / 4) + 1).to_a
+          records_future = nil
+
+          loop do
+            id_subset = slices.shift
+
+            records_to_index = nil
+
+            if records_future
+              # We have records to index from our previous iteration
+              records_to_index = records_future.get
+              records_future = nil
+            end
+
+            if id_subset
+              # Get the next set of records fetching while we index the previous lot
+              records_future = async_fetch_records(repo_id, session, record_type, id_subset, resolved_attributes)
+            end
+
+            if records_to_index && !records_to_index.empty?
+              if worker_status == WORKER_STATUS_NOTHING_INDEXED
+                worker_status = WORKER_STATUS_INDEX_SUCCESS
+              end
+
               begin
-                fetch_records(record_type, id_subset, resolved_attributes)
+                # Happy path: index all of our records in one shot
+                index_records(records_to_index.map {|record|
+                    {
+                      'record' => record,
+                      'uri' => record.fetch('uri')
+                    }
+                  })
               rescue
                 worker_status = WORKER_STATUS_INDEX_ERROR
 
-                # Sad path: the fetch failed for some reason, possibly because
-                # one or more records are malformed and triggering a bug
-                # somewhere.  Recover as best we can by fetching records
-                # individually.
-                salvaged_records = []
-
-                id_subset.each do |id|
+                # Sad path: indexing of one or more records failed, possibly due
+                # to weird data or bugs in mapping rules.  Index as much as we
+                # can before reporting the error.
+                records_to_index.each do |record|
                   begin
-                    salvaged_records << fetch_records(record_type, [id], resolved_attributes)[0]
+                    index_records([
+                                   {
+                          'record' => record,
+                          'uri' => record.fetch('uri')
+                        }
+                                  ])
                   rescue
-                    # Not seeing new workers get started?
-                    Log.error("Failed fetching #{record_type} id=#{id}: #{$!}")
+                    Log.error("Failure while indexing record: #{record.fetch('uri')}: #{$!}")
+                    Log.exception($!)
                   end
                 end
-
-                salvaged_records
-              end
-            ensure
-              @backend_fetch_sem.release
-            end
-          end
-
-          if !records.empty?
-            if worker_status == WORKER_STATUS_NOTHING_INDEXED
-              worker_status = WORKER_STATUS_INDEX_SUCCESS
-            end
-
-            begin
-              # Happy path: index all of our records in one shot
-              index_records(records.map {|record|
-                              {
-                                'record' => record,
-                                'uri' => record.fetch('uri')
-                              }
-                            })
-            rescue
-              worker_status = WORKER_STATUS_INDEX_ERROR
-
-              # Sad path: indexing of one or more records failed, possibly due
-              # to weird data or bugs in mapping rules.  Index as much as we
-              # can before reporting the error.
-              records.each do |record|
-                begin
-                  index_records([
-                                  {
-                                    'record' => record,
-                                    'uri' => record.fetch('uri')
-                                  }
-                                ])
-                rescue
-                  Log.error("Failure while indexing record: #{record.fetch('uri')}: #{$!}")
-                  Log.exception($!)
-                end
               end
             end
+
+            # Nothing left to do
+            break if id_subset.nil?
           end
         end
 
@@ -139,7 +174,7 @@ class PeriodicIndexer < IndexerCommon
         Log.error("Failure in #{@indexer_name} worker thread: #{$!}")
         Log.error($@.join("\n"))
 
-        return WORKER_STATUS_INDEX_ERROR
+        WORKER_STATUS_INDEX_ERROR
       end
     end
   end
@@ -266,8 +301,10 @@ class PeriodicIndexer < IndexerCommon
         }
 
         begin
-          # Feed our worker threads subsets of IDs to process
-          id_set.each_slice(@records_per_thread) do |id_subset|
+          # Feed our worker threads subsets of IDs to process.  Each worker breaks their
+          # IDs into 4 parts and overlaps the requests with indexing, so we send each
+          # thread 4x as many as the config asks for.
+          id_set.each_slice(@records_per_thread * 4) do |id_subset|
             # This will block if all threads are currently busy indexing.
             while !work_queue.offer(id_subset, 5000, java.util.concurrent.TimeUnit::MILLISECONDS)
               # The work queue is full.  Threads might just be busy, but check
