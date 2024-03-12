@@ -199,12 +199,13 @@ $(function () {
                 });
 
                 $modal.trigger('resize');
+                document.dispatchEvent(new Event("linkerbrowseready.aspace"));
               };
 
               $linkerBrowseContainer.html(html);
               $($linkerBrowseContainer).on(
                 'click',
-                'a:not(.dropdown-toggle):not(.record-toolbar .btn)',
+                'a:not(.dropdown-toggle):not(.record-toolbar .btn):not([href="javascript:void(0)"])',
                 function (event) {
                   event.preventDefault();
 
