@@ -100,7 +100,14 @@ class Search
 
     Array(criteria['filter_term[]']).each do |json_filter|
       filter = ASUtils.json_parse(json_filter)
-      queries.and(filter.keys[0], filter.values[0])
+
+      subquery = AdvancedQueryBuilder.new
+
+      ASUtils.wrap(filter.values[0]).each do |value|
+        subquery.or(filter.keys[0], value)
+      end
+
+      queries.and(subquery)
     end
 
     Array(criteria['static_filter_term[]']).each do |json_filter|
