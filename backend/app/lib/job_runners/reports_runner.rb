@@ -45,7 +45,6 @@ class ReportRunner < JobRunner
       self.success!
     rescue Exception => e
       @job.write_output(e.message)
-      @job.write_output(e.backtrace)
       raise e
     ensure
       file.close

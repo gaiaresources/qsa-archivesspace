@@ -58,7 +58,6 @@ class PrintToPDFRunner < JobRunner
       end
     rescue Exception => e
       @job.write_output(e.message)
-      @job.write_output(e.backtrace)
       raise e
     end
   end

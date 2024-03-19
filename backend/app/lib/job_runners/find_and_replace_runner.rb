@@ -96,7 +96,6 @@ class FindAndReplaceRunner < JobRunner
 
     if terminal_error
       @job.write_output(terminal_error.message)
-      @job.write_output(terminal_error.backtrace)
 
       raise terminal_error
     end
