@@ -26,12 +26,20 @@ class DBAuth
     end
   end
 
+  FAKE_HASH = Password.create(SecureRandom.hex)
+  FAKE_PASSWORD = SecureRandom.hex
 
   def self.authenticate(username, password)
     username = username.downcase
 
     DB.open do |db|
       pwhash = db[:auth_db].filter(:username => username).get(:pwhash)
+
+      # Avoid timing attack by doing BCrypt rounds even when the user wasn't found
+      unless pwhash
+        Password.new(FAKE_HASH) == FAKE_PASSWORD
+        return nil
+      end
 
       if pwhash and (Password.new(pwhash) == password)
         user = User.find(:username => username)
