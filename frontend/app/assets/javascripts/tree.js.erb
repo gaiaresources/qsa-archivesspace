@@ -8,7 +8,12 @@
 (function (exports) {
     "use strict";
 
-    var renderers = {
+    if (exports.Tree) {
+        // Already loaded
+        return;
+    }
+
+    exports.treeRenderers = {
         resource: new ResourceRenderer({
             show_identifiers: SHOW_IDENTIFIERS_IN_TREE
         }),
@@ -22,7 +27,7 @@
 
         self.datasource = new TreeDataSource(datasource_url);
 
-        var tree_renderer = renderers[root_record_type];
+        var tree_renderer = exports.treeRenderers[root_record_type];
 
         self.toolbar_renderer = new TreeToolbarRenderer(self, toolbar_container);
 
