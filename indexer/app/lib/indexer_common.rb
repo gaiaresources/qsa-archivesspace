@@ -1084,6 +1084,7 @@ class IndexerCommon
 
     req = Net::HTTP::Post.new("#{solr_url.path}/update")
     req['Content-Type'] = 'application/json'
+    req.basic_auth('solr', AppConfig[:solr_password]) if AppConfig.has_key?(:solr_password)
 
     # Delete the ID plus any documents that were the child of that ID
     delete_request = {:delete => records.map {|id|
@@ -1271,6 +1272,7 @@ class IndexerCommon
       if !records_with_children.empty?
         req = Net::HTTP::Post.new("#{solr_url.path}/update")
         req['Content-Type'] = 'application/json'
+        req.basic_auth('solr', AppConfig[:solr_password]) if AppConfig.has_key?(:solr_password)
         req.body = {:delete => {'query' => opts.fetch(:parent_id_field, 'parent_id') + ":(" + records_with_children.join(" OR ") + ")"}}.to_json
         response = do_http_request(solr_url, req)
       end
@@ -1278,6 +1280,8 @@ class IndexerCommon
       # Now apply the updates
       req = Net::HTTP::Post.new("#{solr_url.path}/update")
       req['Content-Type'] = 'application/json'
+      req.basic_auth('solr', AppConfig[:solr_password]) if AppConfig.has_key?(:solr_password)
+
 
       # Note: We call to_json_stream before asking for the count because this
       # writes out the closing array and newline.
@@ -1304,6 +1308,7 @@ class IndexerCommon
     req = Net::HTTP::Post.new("#{solr_url.path}/update")
     req['Content-Type'] = 'application/json'
     req.body = {:commit => {"softCommit" => (type == :soft) }}.to_json
+    req.basic_auth('solr', AppConfig[:solr_password]) if AppConfig.has_key?(:solr_password)
 
     response = do_http_request(solr_url, req)
 
