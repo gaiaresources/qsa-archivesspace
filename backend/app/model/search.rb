@@ -30,6 +30,11 @@ class Search
 
     query = if params[:q]
               Solr::Query.create_keyword_search(params[:q])
+            elsif params[:qparser]
+              # Support {!terms ...} and friends
+              q = Solr::Query.create_keyword_search(params[:qparser])
+              q.use_lucene_query_type
+              q
             elsif params[:aq] && params[:aq]['query']
               Solr::Query.create_advanced_search(params[:aq], protect_unpublished: show_published_only)
             else

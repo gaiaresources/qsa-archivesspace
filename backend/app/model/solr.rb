@@ -178,6 +178,16 @@ class Solr
     end
 
 
+    def use_standard_query_type
+      @query_type = :standard
+      self
+    end
+
+    def use_lucene_query_type
+      @query_type = :lucene
+      self
+    end
+
     def highlighting(yes_please = true)
       @highlighting = yes_please
       self
@@ -363,6 +373,10 @@ class Solr
         add_solr_param(:pf, "qsa_id_u_stext^4")
 
 
+      end
+
+      if @query_type == :lucene
+        add_solr_param(:defType, "lucene")
       end
 
       # do it here so instance variables can be resolved
