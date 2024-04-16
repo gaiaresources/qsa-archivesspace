@@ -386,6 +386,10 @@ class Solr
         hook.call(self)
       end
 
+      if @query_string && @query_string.start_with?('{!') && @query_type == :edismax
+        Log.warn("POSSIBLE BUG: Query appears to use '{!' Solr syntax without @query_type == :standard")
+      end
+
       url = @solr_url
       # retain path if present i.e. "solr/aspace/select" when using an external Solr with path required
       url.path += "/select"
@@ -426,6 +430,10 @@ class Solr
     req = Net::HTTP::Post.new(url.path)
     req.body = url.query
     req.content_type = 'application/x-www-form-urlencoded'
+
+    if AppConfig.has_key?(:solr_password)
+      req.basic_auth('solr', AppConfig[:solr_password])
+    end
 
     ASHTTP.start_uri(url) do |http|
       solr_response = http.request(req)
