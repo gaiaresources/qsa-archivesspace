@@ -22,6 +22,7 @@ end
 class BackgroundJobQueue
 
   JOB_TIMEOUT_SECONDS = AppConfig[:job_timeout_seconds].to_i
+  QUEUE_LOCK = Mutex.new
 
   def get_next_job
     # First cancel any jobs that are in a running state but which haven't
@@ -41,6 +42,7 @@ class BackgroundJobQueue
       Log.error("Error trying to cancel unwatched jobs on #{Thread.current[:name]}: #{e.class} #{$!} #{$@}")
     end
 
+    QUEUE_LOCK.synchronize do
     DB.open do |db|
       Job.queued_jobs.each do |job|
         runner = JobRunner.registered_runner_for(job.type)
@@ -71,6 +73,7 @@ class BackgroundJobQueue
           Log.info("Another thread is handling job #{job.id}, skipping on #{Thread.current[:name]}")
         end
       end
+    end
     end
     # No jobs to run at this time
     false
