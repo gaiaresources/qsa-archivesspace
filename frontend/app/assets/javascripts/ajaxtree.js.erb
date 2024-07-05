@@ -97,7 +97,7 @@ AjaxTree.prototype.loadPaneForId = function(tree_id) {
 
     var params = {};
     params.inline = true;
-    params[self.tree.large_tree.root_node_type + '_id'] = self.tree.large_tree.root_uri;
+    params[self.tree.root_record_type + '_id'] = self.tree.large_tree.root_uri;
 
     var parsed = TreeIds.parse_tree_id(tree_id);
     var row_type = parsed.type;
