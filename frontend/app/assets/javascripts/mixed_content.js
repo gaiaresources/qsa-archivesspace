@@ -65,9 +65,9 @@ $(function () {
         },
         lineWrapping: true,
         onCursorActivity: function (cm) {
-          if (cm.somethingSelected()) {
-            var coords_start = $editor.cursorCoords(true, 'local');
-            var coords_end = $editor.cursorCoords(false, 'local');
+          if (cm.somethingSelected() && tagList.length > 0) {
+            var coords_start = $editor.cursorCoords(true, "local");
+            var coords_end = $editor.cursorCoords(false, "local");
 
             var top_offset = $wrapWithAction.height() - 20 + coords_end.y;
             var left_offset = Math.max(
