@@ -1,0 +1,21 @@
+//= require purify.min
+
+class NotesPreviewFrame {
+    ALLOWED_TAG_LIST = <%= ASUtils.to_json(AppConfig[:notes_sanitize_allowed_list]) %>;
+
+    constructor(targetElId, content) {
+        const host = document.getElementById(targetElId);
+        const shadow = host.attachShadow({ mode: "open" });
+        const container = document.createElement("div");
+
+        container.innerHTML = this.sanitize(content);
+
+        shadow.appendChild(container);
+    }
+
+    sanitize(content) {
+       return DOMPurify.sanitize(content, {
+            ALLOWED_TAGS: this.ALLOWED_TAG_LIST,
+        });
+    }
+}

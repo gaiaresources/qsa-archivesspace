@@ -804,3 +804,6 @@ AppConfig[:bulk_archival_object_updater_create_missing_top_containers] = false
 # Default search scope setting
 # Options: 'all_record_types', 'collections_only'
 AppConfig[:search_default_scope] = 'all_record_types'
+
+AppConfig[:notes_sanitize_allowed_list] = ['a', 'abbr', 'acronym', 'address', 'area', 'article', 'aside', 'b', 'bdi', 'bdo', 'big', 'blink', 'blockquote', 'br', 'caption', 'center', 'cite', 'code', 'col', 'colgroup', 'data', 'dd', 'del', 'details', 'dfn', 'dir', 'div', 'dl', 'dt', 'em', 'fieldset', 'footer', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'header', 'hgroup', 'hr', 'i', 'ins', 'kbd', 'label', 'legend', 'li', 'main', 'mark', 'marquee', 'menu', 'menuitem', 'meter', 'nav', 'nobr', 'ol', 'optgroup', 'output', 'p', 'pre', 'progress', 'q', 'rp', 'rt', 'ruby', 's', 'samp', 'section', 'shadow', 'small', 'spacer', 'span', 'strike', 'strong', 'sub', 'summary', 'sup', 'table', 'tbody', 'td', 'tfoot', 'th', 'thead', 'time', 'tr', 'tt', 'u', 'ul', 'var', 'wbr']
+
