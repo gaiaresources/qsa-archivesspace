@@ -31,9 +31,16 @@ sub main {
                  unlink($output);
              }
 
-             $current_output = $output;
-             open($fh, ">>", $output);
+             if ($current_output) {
+                  open($fh, ">", $output);
+             } else {
+                  # We've probably just started up.  Since this might be a restart, avoid nuking
+                  # the rest of today's log.
+                  open($fh, ">>", $output);
+             }
+
              $fh->autoflush;
+             $current_output = $output;
 
              if ($symlink_file) {
                  my $symlink_tmp = $symlink_file . "." . scalar(localtime());
