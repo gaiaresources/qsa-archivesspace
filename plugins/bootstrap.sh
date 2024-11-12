@@ -176,10 +176,10 @@ def main
       unless ref == 'origin/master'
         # Check out a local tracking branch if we're working from a branch
         local_branch = ref.split('/')[-1]
-        unless git_quiet("-C", plugin[:path], "checkout", "-t", ref)
+        unless git("-C", plugin[:path], "checkout", "-t", ref)
           # But if that failed (because we're targeting a tag, for example),
           # create a local branch ourselves.  Same deal as above.
-          git_quiet("-C", plugin[:path], "checkout", "-b", local_branch, ref) or
+          git("-C", plugin[:path], "checkout", "-b", local_branch, ref) or
             raise "Failed to check out ref: #{ref} for plugin: #{plugin[:path]}"
         end
       end
