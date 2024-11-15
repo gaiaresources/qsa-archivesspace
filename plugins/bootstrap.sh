@@ -173,7 +173,10 @@ def main
         raise "Failed to clone plugin: #{plugin[:path]}"
 
       ref = determine_target_ref(plugin[:path], target_ref)
-      unless ref == 'origin/master'
+      # develop is the default branch,
+      # so it'll be what we get from the clone above.
+      # Only try checking out a different branch if it's not what we cloned.
+      unless ref == 'origin/develop'
         # Check out a local tracking branch if we're working from a branch
         local_branch = ref.split('/')[-1]
         unless git("-C", plugin[:path], "checkout", "-t", ref)
