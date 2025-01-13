@@ -1,5 +1,9 @@
 #!/bin/bash
 
+cd "`dirname "$0"`"
+
+rm -f cherry-pick-skip.sh
+
 REBASE_HEAD_COMMIT="f9f1712128832b04d5a340c0667c6d68e421b57f"
 
 function already_applied_commits {
@@ -15,10 +19,19 @@ echo
 echo "========================================================================"
 git log -1 "$commit_id"
 echo "========================================================================"
-echo
-echo "To skip it:"
-echo
-echo "git cherry-pick --abort; cat commits_to_apply | sed 's/^${commit_id}/#${commit_id}/' > commits_to_apply.tmp && mv commits_to_apply.tmp commits_to_apply"
-echo
 
 git cherry-pick -x "$commit_id"
+
+if [ "$?" = "0" ]; then
+    echo "HOLY CRAP IT WORKED"
+else
+    echo
+    echo "To skip it:"
+
+    echo "git cherry-pick --abort; cat commits_to_apply | sed 's/^${commit_id}/#${commit_id}/' > commits_to_apply.tmp && mv commits_to_apply.tmp commits_to_apply" > cherry-pick-skip.sh
+    chmod a+x cherry-pick-skip.sh
+
+    echo
+    echo "./cherry-pick-skip.sh"
+    echo
+fi
