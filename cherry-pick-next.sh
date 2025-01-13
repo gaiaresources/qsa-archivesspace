@@ -10,6 +10,8 @@ function already_applied_commits {
     git log --grep='(cherry picked from commit' ${REBASE_HEAD_COMMIT}.. | grep '(cherry picked from commit' | awk '{print $5}' | tr -d ")"
 }
 
+commits_remaining="`grep -v -f<(already_applied_commits) commits_to_apply | grep -v '^#' | wc -l`"
+
 commit_id="`grep -v -f<(already_applied_commits) commits_to_apply | grep -v '^#' | head -1`"
 
 echo "Apply the following commit:"
@@ -24,6 +26,8 @@ git cherry-pick -X ignore-all-space -x "$commit_id"
 
 if [ "$?" = "0" ]; then
     echo "HOLY CRAP IT WORKED"
+    echo
+    echo "Fun fact!  Only $[commits_remaining - 1] commits to go"
 else
     echo "git show ${commit_id}" > cherry-pick-show.sh
     chmod a+x cherry-pick-show.sh
@@ -42,4 +46,6 @@ else
     echo
     echo "./cherry-pick--skip.sh"
     echo
+
+    echo "Fun fact!  Only $[commits_remaining] commits to go"
 fi
