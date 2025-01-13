@@ -40,7 +40,7 @@ else
     echo
     echo "To skip it:"
 
-    echo "git cherry-pick --abort; cat commits_to_apply | sed 's/^${commit_id}/#${commit_id}/' > commits_to_apply.tmp && mv commits_to_apply.tmp commits_to_apply" > cherry-pick--skip.sh
+    echo "git cherry-pick --abort; cat commits_to_apply | sed 's/^${commit_id}/#${commit_id}/' > commits_to_apply.tmp && mv commits_to_apply.tmp commits_to_apply && git add commits_to_apply && git commit -m 'skip commit'" > cherry-pick--skip.sh
     chmod a+x cherry-pick--skip.sh
 
     echo
