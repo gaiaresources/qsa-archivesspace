@@ -2,7 +2,7 @@
 
 cd "`dirname "$0"`"
 
-rm -f cherry-pick-skip.sh
+rm -f cherry-pick-skip.sh cherry-pick-show.sh
 
 REBASE_HEAD_COMMIT="f9f1712128832b04d5a340c0667c6d68e421b57f"
 
@@ -20,18 +20,26 @@ echo "========================================================================"
 git log -1 "$commit_id"
 echo "========================================================================"
 
-git cherry-pick -x "$commit_id"
+git cherry-pick -X ignore-all-space -x "$commit_id"
 
 if [ "$?" = "0" ]; then
     echo "HOLY CRAP IT WORKED"
 else
+    echo "git show ${commit_id}" > cherry-pick-show.sh
+    chmod a+x cherry-pick-show.sh
+
+    echo
+    echo "To show it:"
+    echo
+    echo "./git-cherry-pick.sh"
+
     echo
     echo "To skip it:"
 
-    echo "git cherry-pick --abort; cat commits_to_apply | sed 's/^${commit_id}/#${commit_id}/' > commits_to_apply.tmp && mv commits_to_apply.tmp commits_to_apply" > cherry-pick-skip.sh
-    chmod a+x cherry-pick-skip.sh
+    echo "git cherry-pick --abort; cat commits_to_apply | sed 's/^${commit_id}/#${commit_id}/' > commits_to_apply.tmp && mv commits_to_apply.tmp commits_to_apply" > cherry-pick--skip.sh
+    chmod a+x cherry-pick--skip.sh
 
     echo
-    echo "./cherry-pick-skip.sh"
+    echo "./cherry-pick--skip.sh"
     echo
 fi
