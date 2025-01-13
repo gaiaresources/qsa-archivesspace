@@ -63,3 +63,5 @@ plugins/*/gems/*
 docker-compose.override.yml
 launcher/lib/*
 *~undo-tree~
+/cherry-pick--skip.sh
+/cherry-pick-show.sh
