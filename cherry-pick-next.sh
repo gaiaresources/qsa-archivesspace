@@ -31,7 +31,7 @@ else
     echo
     echo "To show it:"
     echo
-    echo "./git-cherry-pick.sh"
+    echo "./cherry-pick-show.sh"
 
     echo
     echo "To skip it:"
