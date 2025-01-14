@@ -26,7 +26,7 @@ PLUGINS = [
   },
   {
     :path => 'plugins/in_a_rush',
-    :url => 'https://github.com/marktriggs/in_a_rush.git',
+    :url => 'git@gitlab.gaiaresources.com.au:qsa/in_a_rush.git',
   },
   {
     :path => 'plugins/as_mogwai',
