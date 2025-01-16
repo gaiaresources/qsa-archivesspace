@@ -222,48 +222,50 @@ class ArchivesSpaceService < Sinatra::Base
       DB.open do
         require_relative "lib/bootstrap_access_control"
         Preference.init
-
-        @loaded_hooks.each do |hook|
-          hook.call
-        end
-        @archivesspace_loaded = true
-
-
-        # Warn if any referenced plugins aren't present
-        ASUtils.find_local_directories.each do |plugin_dir|
-          unless Dir.exist?(plugin_dir)
-            Log.warn("Plugin referenced in AppConfig[:plugins] could not be found: #{File.absolute_path(plugin_dir)}")
-          end
-        end
-
-        # Load plugin init.rb files (if present)
-        ASUtils.order_plugins(ASUtils.find_local_directories('backend')).each do |dir|
-          init_file = File.join(dir, "plugin_init.rb")
-          if File.exist?(init_file)
-            load init_file
-          end
-        end
-
-        BackgroundJobQueue.init if ASpaceEnvironment.environment != :unit_test
-
-        @plugins_loaded_hooks.each do |hook|
-          hook.call
-        end
-        @archivesspace_plugins_loaded = true
-
-        Relationships.verify!
-
-        if AppConfig[:zombie_record_detection]
-          zombie_record_interval = [Integer(AppConfig[:zombie_record_interval_seconds]), 5].max
-
-          settings.scheduler.every("#{zombie_record_interval}s", :allow_overlapping => false) do
-            ZombieRecordHunter.run!
-          end
-        end
-
-        Notifications.notify("BACKEND_STARTED")
-        Log.noisiness "Logger::#{AppConfig[:backend_log_level].upcase}".constantize
       end
+
+      @loaded_hooks.each do |hook|
+        hook.call
+      end
+      @archivesspace_loaded = true
+
+
+      # Warn if any referenced plugins aren't present
+      ASUtils.find_local_directories.each do |plugin_dir|
+        unless Dir.exist?(plugin_dir)
+          Log.warn("Plugin referenced in AppConfig[:plugins] could not be found: #{File.absolute_path(plugin_dir)}")
+        end
+      end
+
+      # Load plugin init.rb files (if present)
+      ASUtils.order_plugins(ASUtils.find_local_directories('backend')).each do |dir|
+        init_file = File.join(dir, "plugin_init.rb")
+        if File.exist?(init_file)
+          load init_file
+        end
+      end
+
+      Relationships.verify!
+
+      @plugins_loaded_hooks.each do |hook|
+        hook.call
+      end
+
+      @archivesspace_plugins_loaded = true
+
+
+      BackgroundJobQueue.init if ASpaceEnvironment.environment != :unit_test
+
+      if AppConfig[:zombie_record_detection]
+        zombie_record_interval = [Integer(AppConfig[:zombie_record_interval_seconds]), 5].max
+
+        settings.scheduler.every("#{zombie_record_interval}s", :allow_overlapping => false) do
+          ZombieRecordHunter.run!
+        end
+      end
+
+      Notifications.notify("BACKEND_STARTED")
+      Log.noisiness "Logger::#{AppConfig[:backend_log_level].upcase}".constantize
     rescue
       ASUtils.dump_diagnostics($!)
     end
