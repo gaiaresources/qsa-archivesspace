@@ -240,7 +240,7 @@ class StreamingImport
         record['position'] += @position_offsets[record['uri']]
       end
 
-      needs_validate = !ASUtils.migration_mode?
+      needs_validate = true
 
       json = to_jsonmodel(record, needs_validate)
 

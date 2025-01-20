@@ -76,12 +76,6 @@ AbstractRelationship = Class.new(Sequel::Model) do
     self.create(values)
   end
 
-  if ASUtils.migration_mode?
-    def _save_refresh
-      # We don't need the updated object.  Do we ever
-    end
-  end
-
   # True if this relationship relates to obj
   def relates_to?(obj)
     self.class.reference_columns_for(obj.class).any? {|col|
@@ -852,16 +846,10 @@ module Relationships
             model.my_jsonmodel.record_type == record_type[:type]
           } or raise "Couldn't find model for #{record_type[:type]}"
 
-          if ASUtils.migration_mode?
-            # Save fetching our record from the DB
-            referent = referent_model.new
-            referent.id = record_type[:id]
-          else
           referent = referent_model[record_type[:id]]
 
           if !referent
             raise ReferenceError.new("Can't relate to non-existent record: #{reference['ref']}")
-          end
           end
 
           # Create a new relationship instance linking us and them together, and
@@ -880,13 +868,11 @@ module Relationships
           # models), update the referent's lock version to ensure that a
           # concurrent update to that object won't clobber our changes.
 
-          unless ASUtils.migration_mode?
           if referent_model.find_relationship(relationship_name, true) && !opts[:system_generated]
             DB.increase_lock_version_or_fail(referent)
           end
         end
       end
-    end
     end
 
 

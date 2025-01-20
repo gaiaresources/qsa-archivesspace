@@ -117,11 +117,7 @@ module Notes
         obj.note_dataset.delete
       end
 
-      publish_notes_by_default = if ASUtils.migration_mode?
-                                   false
-                                 else
-                                   Preference.defaults['publish']
-                                 end
+      publish_notes_by_default = Preference.defaults['publish']
 
 
       json.notes.each do |note|
