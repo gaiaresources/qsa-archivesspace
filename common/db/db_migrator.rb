@@ -3,9 +3,6 @@ require 'sequel/adapters/shared/mysql'
 require 'config/config-distribution'
 require 'asutils'
 
-Sequel::MySQL.default_engine = 'InnoDB'
-Sequel::MySQL.default_charset = 'utf8mb4'
-
 Sequel.database_timezone = :utc
 Sequel.typecast_timezone = :utc
 
@@ -203,7 +200,7 @@ class DBMigrator
       $db_type = db.database_type
       unless $db_type == :derby
         db.default_engine = 'InnoDB'
-        db.default_charset = 'utf8'
+        db.default_charset = 'utf8mb4'
       end
 
       fail_if_managed_container_migration_needed!(db)
