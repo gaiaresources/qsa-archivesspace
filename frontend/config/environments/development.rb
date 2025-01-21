@@ -49,4 +49,5 @@ ArchivesSpace::Application.configure do
 
   # Hi
   config.hosts << 'thweeble'
+  config.web_console.allowed_ips = '192.168.0.0/16'
 end
