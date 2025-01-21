@@ -9,7 +9,7 @@ RelationshipRules.instance.rules_for_jsonmodel_type(jsonmodel_type)
 
         if rule.source_jsonmodel_category == category
             record_relators << rule_relators[:target]
-            record_relator_labels[rule_relators[:target]] = I18n.t("enumerations.series_system_#{relationship_type_key}_relator.#{rule_relators[:target]}", nil)
+            record_relator_labels[rule_relators[:target]] = t("enumerations.series_system_#{relationship_type_key}_relator.#{rule_relators[:target]}", :default => nil)
             if category == :agent && rule_relators[:target] == 'is_controlled_by'
               record_relator_labels['is_controlled_by'] = 'Has been controlled by'
               record_relators << 'is_currently_controlled_by'
@@ -19,7 +19,7 @@ RelationshipRules.instance.rules_for_jsonmodel_type(jsonmodel_type)
 
         if rule.target_jsonmodel_category == category
             record_relators << rule_relators[:source]
-            record_relator_labels[rule_relators[:source]] = I18n.t("enumerations.series_system_#{relationship_type_key}_relator.#{rule_relators[:source]}", nil)
+            record_relator_labels[rule_relators[:source]] = t("enumerations.series_system_#{relationship_type_key}_relator.#{rule_relators[:source]}", :default => nil)
         end
     end
 end
