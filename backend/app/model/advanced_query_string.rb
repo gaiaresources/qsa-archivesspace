@@ -13,23 +13,23 @@ class AdvancedQueryString
     solr_field = AdvancedSearch.solr_field_for(@query.fetch('field'))
     record_type_limit = AdvancedSearch.record_type_limit(@query.fetch('field'))
 
-    query = if solr_field.respond_to?(:to_solr_s)
+    if solr_field.respond_to?(:to_solr_s)
       "#{prefix}(#{solr_field.to_solr_s(@query)})"
     else
-      if field.nil?
-        "#{prefix}#{value}"
-      else
-        "#{prefix}#{field}:#{value}"
+      query = if field.nil?
+                "#{prefix}#{value}"
+              else
+                "#{prefix}#{field}:#{value}"
+              end
+
+      if record_type_limit
+        query = "(%s) AND types:(%s)" % [
+          query,
+          record_type_limit.join(' OR ')
+        ]
       end
 
-    if record_type_limit
-      query = "(%s) AND types:(%s)" % [
-        query,
-        record_type_limit.join(' OR ')
-      ]
-    end
-
-    query
+      query
     end
   end
 

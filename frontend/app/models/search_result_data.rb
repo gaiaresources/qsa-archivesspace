@@ -116,7 +116,7 @@ class SearchResultData
     end
   end
 
-  def facet_display_string(facet_group, term)
+  def facet_display_string(facet_group, terms)
     "#{I18n.t("search.#{get_type}.#{facet_group}", :default => I18n.t("search.multi.#{facet_group}", :default => facet_group))}: #{ASUtils.wrap(terms).map {|term| facet_label_string(facet_group, term)}.join('; ')}"
   end
 
