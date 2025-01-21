@@ -50,26 +50,3 @@ ArchivesSpace::Application.configure do
   # Hi
   config.hosts << 'thweeble'
 end
-
-
-Thread.new do
-  $stderr.puts("Starting template expire job")
-  templates_to_expire = []
-
-  loop do
-    sleep 15 * 60
-
-    begin
-      templates_to_expire.each do |template_method|
-        ActionView::CompiledTemplates.instance_eval do
-          $stderr.puts("Expiring template: #{template_method}")
-          remove_possible_method template_method
-        end
-      end
-
-      templates_to_expire = ActionView::CompiledTemplates.instance_methods
-    rescue
-      $stderr.puts("Failure while expiring templates: #{$!}")
-    end
-  end
-end
