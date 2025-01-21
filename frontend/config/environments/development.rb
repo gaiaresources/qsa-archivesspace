@@ -36,6 +36,9 @@ ArchivesSpace::Application.configure do
   # Expands the lines which load the assets
   config.assets.debug = true
 
+  # Don't fallback to assets pipeline if a precompiled asset is missed
+  config.assets.compile = true
+
   # If we're running with a prefix, write our on-the-fly compiled assets to the
   # right spot.  NOTE: Don't enable this for production, as it's handled
   # differently there due to precompilation.
@@ -43,6 +46,9 @@ ArchivesSpace::Application.configure do
 
   # Don't load streaming responses fully into memory.  Geez.
   config.middleware.delete ::Rack::ETag
+
+  # Hi
+  config.hosts << 'thweeble'
 end
 
 
