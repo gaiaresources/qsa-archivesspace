@@ -170,11 +170,11 @@ module SearchHelper
                     content_tag('ul', :style => 'padding-left: 20px;') {
                       Array(v).collect { |i|
                         content_tag('li',
-                          process(i, opts))
+                          process_column(i, opts))
                       }.join.html_safe
                     }
                   elsif v.length == 1
-                    process(v[0], opts)
+                    process_column(v[0], opts)
                   end
                 end
               end
@@ -195,7 +195,7 @@ module SearchHelper
     @columns.insert(opts[:index] || -1, col)
   end
 
-  def process(data, opts)
+  def process_column(data, opts)
     case opts[:type]
     when 'boolean'
       I18n.t("boolean.#{data}", :default => data.to_s)
