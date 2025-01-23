@@ -37,6 +37,25 @@ class ApplicationController < ActionController::Base
 
   around_action :set_locale
 
+  def print_stacktraces(&action)
+    begin
+      action.call
+    rescue
+      $stderr.puts("=" * 72)
+      $stderr.puts("Frontend caught the following error: #{$!}")
+      $!.backtrace.each do |frame|
+        $stderr.puts("  #{frame}")
+      end
+      $stderr.puts("")
+
+      raise $!
+    end
+  end
+
+  if Rails.env.development?
+    around_action :print_stacktraces
+  end
+
   def self.permission_mappings
     Array(@permission_mappings)
   end
