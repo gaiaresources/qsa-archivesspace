@@ -310,16 +310,16 @@ $(function () {
     const handle_select = function (row) {
       const selected = row.find('.series_system_search_selector').val()
 
-      $('.series_system_subform', row).hide();
+      $('.series_system_subform', row).attr('style', 'display: none !important');
       $('.series_system_subform :input', row).attr('disabled', 'disabled');
 
       if (selected === 'series_system_agency_rlshp') {
         // Agency
-        $('.series_system_agent_subform', row).show();
+        $('.series_system_agent_subform', row).css('display', 'inherit');
         $('.series_system_agent_subform :input', row).attr('disabled', null);
       } else {
         // Series
-        $('.series_system_series_subform', row).show();
+        $('.series_system_series_subform', row).css('display', 'inherit');
         $('.series_system_series_subform :input', row).attr('disabled', null);
       }
     }

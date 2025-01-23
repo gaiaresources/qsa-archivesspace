@@ -25,15 +25,17 @@ RelationshipRules.instance.rules_for_jsonmodel_type(jsonmodel_type)
 end
 %>
 
-<div class="input-group">
-    <div class="input-group-addon">
-        <select name="r${index}" id="r${index}">
-            <% record_relators.uniq.each do |relator| %>
-                <% next if category == :series && ['documents', 'is_restricted_by'].include?(relator) %>
-                <option value="<%= relator %>"><%= (record_relator_labels[relator] || relator) %></option>
-            <% end %>
-        </select>
-    </div>
+<div class="form-group flex-grow-1">
+    <label for="r${index}">Relator</label>
+    <select name="r${index}" id="r${index}" class="form-control">
+        <% record_relators.uniq.each do |relator| %>
+            <% next if category == :series && ['documents', 'is_restricted_by'].include?(relator) %>
+            <option value="<%= relator %>"><%= (record_relator_labels[relator] || relator) %></option>
+        <% end %>
+    </select>
+</div>
 
+<div class="form-group">
+    <label for="v${index}">QSA ID</label>
     <input class="form-control" name="v${index}" id="v${index}" type="text" placeholder="QSA ID for <%= category %> record"/>
 </div>
