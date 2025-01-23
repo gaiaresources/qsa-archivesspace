@@ -85,6 +85,7 @@ def create_structured_date(r, rel)
   l = self[:structured_date_label].insert(:date_label_id => r[:label_id],
                                           :date_type_structured_id => type_id,
                                           :date_certainty_id => r[:certainty_id],
+                                          :end_date_certainty_id => r[:certainty_end_id],
                                           :date_era_id => r[:era_id],
                                           :date_calendar_id => r[:calendar_id],
                                           :create_time => Time.now,

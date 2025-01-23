@@ -1,27 +1,34 @@
 <% define_template "date_type_single", jsonmodel_definition(:date) do |form| %>
   <div class="inline-subform date-type-subform" data-date-type="single">
     <%= form.label_and_date "begin" %>
+    <%= form.label_and_select("certainty", form.possible_options_for("certainty", true)) %>
   </div>
 <% end %>
 
 <% define_template "date_type_inclusive", jsonmodel_definition(:date) do |form| %>
   <div class="inline-subform date-type-subform" data-date-type="inclusive">
     <%= form.label_and_date "begin" %>
+    <%= form.label_and_select("certainty", form.possible_options_for("certainty", true), :control_class => "subrecord-form-divider") %>
     <%= form.label_and_date "end" %>
+    <%= form.label_and_select("certainty_end", form.possible_options_for("certainty", true)) %>
   </div>
 <% end %>
 
 <% define_template "date_type_range", jsonmodel_definition(:date) do |form| %>
   <div class="inline-subform date-type-subform" data-date-type="range">
     <%= form.label_and_date "begin" %>
+    <%= form.label_and_select("certainty", form.possible_options_for("certainty", true), :control_class => "subrecord-form-divider") %>
     <%= form.label_and_date "end" %>
+    <%= form.label_and_select("certainty_end", form.possible_options_for("certainty", true)) %>
   </div>
 <% end %>
 
 <% define_template "date_type_bulk", jsonmodel_definition(:date) do |form| %>
   <div class="inline-subform date-type-subform" data-date-type="bulk">
     <%= form.label_and_date "begin" %>
+    <%= form.label_and_select("certainty", form.possible_options_for("certainty", true), :control_class => "subrecord-form-divider") %>
     <%= form.label_and_date "end" %>
+    <%= form.label_and_select("certainty_end", form.possible_options_for("certainty", true)) %>
   </div>
 <% end %>
 
@@ -55,13 +62,14 @@
 <% end %>
 
 <% define_template "structured_date_label_common_fields", jsonmodel_definition(:structured_date_label) do |form| %>
-  <%= form.label_and_select("date_type_structured", form.possible_options_for("date_type_structured", true, i18n_prefix: "date_type_structured")) %>
-  <%= form.label_and_select("date_certainty", form.possible_options_for("date_certainty", true)) %>
-  <%= form.label_and_select("date_era", form.possible_options_for("date_era", true)) %>
-  <%= form.label_and_select("date_calendar", form.possible_options_for("date_calendar", true)) %>
-
   <% ranged_dates = [form["structured_date_range"]].compact %>
   <% single_dates = [form["structured_date_single"]].compact %>
+
+  <%= form.label_and_select("date_type_structured", form.possible_options_for("date_type_structured", true, i18n_prefix: "date_type_structured")) %>
+  <%= form.label_and_select("date_certainty", form.possible_options_for("date_certainty", true)) %>
+  <%= form.label_and_select("end_date_certainty", form.possible_options_for("date_certainty", true)) %>
+  <%= form.label_and_select("date_era", form.possible_options_for("date_era", true)) %>
+  <%= form.label_and_select("date_calendar", form.possible_options_for("date_calendar", true)) %>
 
   <% if single_dates.length > 0 %>
     <%= form.fields_for(single_dates.first, "structured_date_single") do |item| %>
@@ -173,10 +181,22 @@
     <% form.emit_template("date_type_nil") %>
   <% end %>
 
-  <%= form.label_and_select("certainty", form.possible_options_for("certainty", true)) %>
+  <% if ["date", "archival_record_date", "event_date", "usage_date existence_date", "date_type_nil"].include? form.obj["date_type"] %>
+    <%= form.label_and_select("certainty", form.possible_options_for("certainty", true)) %>
+  <% end %>
   <%= form.label_and_select("era", form.possible_options_for("era", true)) %>
   <%= form.label_and_select("calendar", form.possible_options_for("calendar", true)) %>
 
   <%= render_plugin_partials("date_fields_ext", :form => form)
   %>
+<% end %>
+
+<% define_template "bulk_deaccession_date", jsonmodel_definition(:date) do |form| %>
+  <div class="subrecord-form-fields">
+    <div class="date-container">
+      <%= form.label_and_date "begin" %>
+      <%= form.label_and_select("certainty", form.possible_options_for("certainty", true)) %>
+      <%= form.label_and_textarea "date_notes" %>
+    </div>
+  </div>
 <% end %>

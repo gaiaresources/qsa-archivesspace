@@ -195,6 +195,7 @@ Sequel.migration do
       Integer :date_label_id, :null => false # existing enum date_label
       Integer :date_type_structured_id, :null => false
       Integer :date_certainty_id, :null => true # existing enum date_certainty
+      Integer :end_date_certainty_id, :null => true # QSA
       Integer :date_era_id, :null => true # existing enum date_era
       Integer :date_calendar_id, :null => true # existing enum date_calendar
 
