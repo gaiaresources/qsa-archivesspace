@@ -677,7 +677,7 @@ class ApplicationController < ActionController::Base
 
   def params_for_backend_search
     backend_search_params = ["page", "q", "aq", "type", "sort", "exclude", "filter_term", "fields"]
-    params_for_search = params.select {|k, v| backend_search_params.include?(k) and not v.blank?}
+    params_for_search = params.to_unsafe_h.select {|k, v| backend_search_params.include?(k) and not v.blank?}
 
     params_for_search["page"] ||= 1
 
