@@ -124,8 +124,8 @@
         </div>
       </div>
       <ul class="nav nav-pills">
-        <li class="active"><a href="#<%= form.id_for("item") %>_parsed" data-toggle="tab" title="<%= I18n.t("note._frontend.preview.parsed_title") %>"><%= I18n.t("note._frontend.preview.parsed") %></a></li>
-        <li><a href="#<%= form.id_for("item") %>_raw" data-toggle="tab" title="<%= I18n.t("note._frontend.preview.raw_title") %>"><%= I18n.t("note._frontend.preview.raw") %></a></li>
+        <li class="nav-item"><a class="nav-link active" href="#<%= form.id_for("item") %>_parsed" data-toggle="tab" title="<%= I18n.t("note._frontend.preview.parsed_title") %>"><%= I18n.t("note._frontend.preview.parsed") %></a></li>
+        <li class="nav-item"><a class="nav-link" href="#<%= form.id_for("item") %>_raw" data-toggle="tab" title="<%= I18n.t("note._frontend.preview.raw_title") %>"><%= I18n.t("note._frontend.preview.raw") %></a></li>
       </ul>
     </div>
   <% else %>
