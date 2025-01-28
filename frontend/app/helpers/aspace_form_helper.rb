@@ -27,7 +27,7 @@ module AspaceFormHelper
     end
 
 
-    def clean_mixed_content(content, root_url)
+    def clean_mixed_content(content, root_url = '/')
       content = content.to_s
       return content if content.blank?
 

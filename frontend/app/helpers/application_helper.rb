@@ -326,7 +326,7 @@ module ApplicationHelper
   def clean_mixed_content(content)
     content = content.to_s
     return content if content.blank?
-    MixedContentParser::parse(content, url_for(:root), { :wrap_blocks => false } ).to_s.html_safe
+    MixedContentParser::parse(content, '/', { :wrap_blocks => false } ).to_s.html_safe
   end
 
   def proxy_localhost?
