@@ -24,5 +24,3 @@ PLATFORMS
 DEPENDENCIES
   sinatra (~> 3.2)
 
-BUNDLED WITH
-   2.5.15

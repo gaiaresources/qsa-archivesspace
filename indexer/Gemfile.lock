@@ -135,5 +135,3 @@ DEPENDENCIES
   vcr (= 6.0.0)
   webmock
 
-BUNDLED WITH
-   2.5.15
