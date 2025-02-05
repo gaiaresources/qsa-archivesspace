@@ -1,7 +1,7 @@
 require_relative '../lib/realtime_indexing'
 
 require_relative 'ASModel_crud'
-require_relative 'ASModel_change_tracking'
+# require_relative 'ASModel_change_tracking'
 require_relative 'ASModel_transfers'
 require_relative 'ASModel_database_mapping'
 require_relative 'ASModel_sequel'
@@ -29,7 +29,7 @@ module ASModel
 
     base.extend(JSONModel)
 
-    base.include(ChangeTracking)
+    # base.include(ChangeTracking)
     base.include(CRUD)
     base.include(RepositoryTransfers)
     base.include(DatabaseMapping)

@@ -36,7 +36,7 @@ class Preference < Sequel::Model(:preference)
   def after_save
     Notifications.notify("REFRESH_PREFERENCES")
 
-    reset_initial_values
+    # reset_initial_values
   end
 
 
