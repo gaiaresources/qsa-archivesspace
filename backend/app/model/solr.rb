@@ -127,8 +127,16 @@ class Solr
         clauses = advanced_query['subqueries'].map {|subq|
           construct_advanced_query_string(subq, use_literal: use_literal, protect_unpublished: protect_unpublished)
         }
+
         subqueries = clauses.join(" #{advanced_query['op']} ")
-        "(#{subqueries})"
+
+        if advanced_query['subqueries'].all? {|subquery| subquery['negated']}
+          result = "(*:* AND #{subqueries})"
+        else
+          result = "(#{subqueries})"
+        end
+
+        result
       else
         AdvancedQueryString.new(advanced_query, use_literal: use_literal, protect_unpublished: protect_unpublished).to_solr_s
       end
