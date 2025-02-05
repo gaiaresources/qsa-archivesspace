@@ -111,7 +111,7 @@ class SearchController < ApplicationController
         # The 'context' field (shown as the "Found in" column for text searches) does not actually exist in the backend;
         # it is derived from the 'ancestors' field at runtime. If it shows up in the fields for the CSV download, we
         # need special processing to populate it properly. (See ANW-1509)
-        if criteria['fields[]'].include? 'context'
+        if ASUtils.wrap(criteria['fields[]']).include? 'context'
           criteria['fields[]'].delete 'context'
           criteria['fields[]'].append *ContextConverter.ancestor_fields
 
