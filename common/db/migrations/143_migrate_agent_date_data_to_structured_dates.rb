@@ -134,35 +134,40 @@ Sequel.migration do
     TYPE_ID_SINGLE = get_enum_value_id("date_type_structured", "single")
     TYPE_ID_RANGE = get_enum_value_id("date_type_structured", "range")
 
-    # figure out which FK is defined, so we can create the right relationship later
-    self[:date].order(:id).paged_each do |r|
-      if r[:agent_person_id]
-        rel = :agent_person_id
-      elsif r[:agent_family_id]
-        rel = :agent_family_id
-      elsif r[:agent_corporate_entity_id]
-        rel = :agent_corporate_entity_id
-      elsif r[:agent_software_id]
-        rel = :agent_software_id
-      elsif r[:name_person_id]
-        rel = :name_person_id
-      elsif r[:name_family_id]
-        rel = :name_family_id
-      elsif r[:name_corporate_entity_id]
-        rel = :name_corporate_entity_id
-      elsif r[:name_software_id]
-        rel = :name_software_id
-      elsif r[:related_agents_rlshp_id]
-        rel = :related_agents_rlshp_id
-      else
-        next
-      end
+    self.transaction do
+      ids_to_delete = []
+      self[:date].order(:id).paged_each do |r|
+        # figure out which FK is defined, so we can create the right relationship later
+        if r[:agent_person_id]
+          rel = :agent_person_id
+        elsif r[:agent_family_id]
+          rel = :agent_family_id
+        elsif r[:agent_corporate_entity_id]
+          rel = :agent_corporate_entity_id
+        elsif r[:agent_software_id]
+          rel = :agent_software_id
+        elsif r[:name_person_id]
+          rel = :name_person_id
+        elsif r[:name_family_id]
+          rel = :name_family_id
+        elsif r[:name_corporate_entity_id]
+          rel = :name_corporate_entity_id
+        elsif r[:name_software_id]
+          rel = :name_software_id
+        elsif r[:related_agents_rlshp_id]
+          rel = :related_agents_rlshp_id
+        else
+          next
+        end
 
-      log_date_migration(r)
-      create_structured_date(r, rel)
+        log_date_migration(r)
+        create_structured_date(r, rel)
 
-      self[:date].filter(:id => r[:id]).delete
-    end # of loop
+        ids_to_delete << r[:id]
+      end # of loop
+
+      self[:date].filter(:id => ids_to_delete).delete
+    end
 
     # remove agents related FKs from date table
     alter_table(:date) do
