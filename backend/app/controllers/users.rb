@@ -43,12 +43,18 @@ class ArchivesSpaceService < Sinatra::Base
 
   Endpoint.get('/users')
     .description("Get a list of users")
-    .params()
+    .params(["q", String, "Query string", optional: true])
     .paginated(true)
     .permissions([])
     .returns([200, "[(:resource)]"]) \
   do
-    handle_listing(User, params, {:exclude => {:id => User.unlisted_user_ids}})
+    handle_listing(User, params, {
+      :exclude => {:id => User.unlisted_user_ids},
+      :query => {
+        search_term: params[:q],
+        columns: [:username, :name],
+      },
+    })
   end
 
 

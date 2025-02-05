@@ -1,7 +1,31 @@
 <%= setup_context :title => @manage_access ? t("user._frontend.section.manage_access") : t("user._plural") %>
 
 <div class="d-flex">
-   <div class="col-md-12">
+  <div class="col-md-3">
+    <% unless params[:q].to_s.empty? %>
+      <div class="well">
+        <h3>
+          <%= I18n.t "search_results.filtered_by" %>
+          <%= link_to I18n.t("search_results.clear_all"), {"q" => nil}, :class => "btn btn-xs pull-right" %>
+        </h3>
+        <ul>
+          <li class="facet-selected">
+            <%= link_to "Text: #{params[:q]}", {"q" => nil} %>
+            <%= link_to '<span class="glyphicon glyphicon-remove"></span>'.html_safe, {"q" => nil} %>
+          </li>
+        </ul>
+      </div>
+    <% end %>
+    <%= form_tag({}, :method => :get) do %>
+      <div class="input-group" style="width:100%">
+        <input class="text-filter-field form-control" type="text" placeholder="<%= I18n.t("search_results.text_placeholder") %>" name="q" value="<%= params[:q] %>"/>
+        <div class="input-group-btn">
+          <button class="btn btn-default"><span class="glyphicon glyphicon-search"></span></button>
+        </div>
+      </div>
+    <% end %>
+  </div>
+   <div class="col-md-9">
      <div class="record-toolbar d-flex align-items-center">
        <div class="btn-group ml-auto">
          <% unless @manage_access %>

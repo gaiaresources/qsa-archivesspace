@@ -15,9 +15,10 @@ class UsersController < ApplicationController
   def index
     @search_data = JSONModel(:user).all(
       page: selected_page,
-      page_size: 50,
+      page_size: 10,
       sort_field: params.fetch(:sort, :username),
-      sort_direction: params.fetch(:direction, :asc)
+      sort_direction: params.fetch(:direction, :asc),
+      q: params[:q],
     )
   end
 
@@ -26,7 +27,8 @@ class UsersController < ApplicationController
       page: selected_page,
       page_size: 50,
       sort_field: params.fetch(:sort, :username),
-      sort_direction: params.fetch(:direction, :asc)
+      sort_direction: params.fetch(:direction, :asc),
+      q: params[:q],
     )
     @manage_access = true
     render :action => "index"

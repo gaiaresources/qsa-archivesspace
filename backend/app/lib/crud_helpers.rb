@@ -25,9 +25,23 @@ module CrudHelpers
   def self.scoped_dataset(model, where_clause)
     dataset = (model.model_scope == :repository) ? model.this_repo : model
 
-    if where_clause.is_a?(Hash) && where_clause.has_key?(:exclude)
-      dataset = dataset.exclude(where_clause[:exclude])
-      where_clause.delete(:exclude)
+    if where_clause.is_a?(Hash)
+      if where_clause.has_key?(:exclude)
+        dataset = dataset.exclude(where_clause[:exclude])
+        where_clause.delete(:exclude)
+      end
+
+      if where_clause.has_key?(:query) && where_clause.fetch(:query).fetch(:search_term).to_s.strip.length > 0
+        filters = where_clause.fetch(:query)
+                              .fetch(:columns)
+                              .map do |col|
+                                Sequel.like(Sequel.function(:lower, col), "%#{where_clause.fetch(:query).fetch(:search_term).to_s.strip.downcase}%")
+                              end
+
+        dataset = dataset.filter(Sequel.|(*filters))
+      end
+
+      where_clause.delete(:query)
     end
 
     if !where_clause.is_a?(Hash) || !where_clause.empty?
