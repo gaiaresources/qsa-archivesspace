@@ -279,7 +279,7 @@ AppConfig[:plugins_directory] = "plugins"
 AppConfig[:feedback_url] = "https://archivesspace.org/contact"
 
 # Allow an unauthenticated user to create an account
-AppConfig[:allow_user_registration] = true
+AppConfig[:allow_user_registration] = false
 
 # Help Configuration
 AppConfig[:help_enabled] = true
