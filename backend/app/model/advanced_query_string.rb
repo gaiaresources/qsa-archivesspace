@@ -72,7 +72,7 @@ class AdvancedQueryString
   def value
     if date?
       comparator = @query["comparator"]
-      precision = @query["precision"].upcase
+      precision = @query.fetch("precision", "DAY").upcase
       date = JSONModel::Validations.normalise_date(@query["value"])
       time = Time.parse(date).utc.iso8601
 
