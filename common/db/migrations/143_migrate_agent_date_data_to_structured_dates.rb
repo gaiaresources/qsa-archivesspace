@@ -167,6 +167,22 @@ Sequel.migration do
       end # of loop
 
       self[:date].filter(:id => ids_to_delete).delete
+
+      # If we did our job correctly, none of the columns we're about to drop will have
+      # anything in them.
+      [
+        :agent_person_id,
+        :agent_family_id,
+        :agent_corporate_entity_id,
+        :agent_software_id,
+        :name_person_id,
+        :name_family_id,
+        :name_corporate_entity_id,
+        :name_software_id,
+        :related_agents_rlshp_id
+      ].each do |drop_column|
+        self[:date].filter(Sequel.~(drop_column => nil)).count == 0 or raise "Date column #{drop_column} should have been empty after migration completed."
+      end
     end
 
     # remove agents related FKs from date table
