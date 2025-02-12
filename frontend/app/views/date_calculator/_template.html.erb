@@ -12,7 +12,7 @@
       <%= hidden_field_tag 'record_uri', record.uri %>
       <div class="d-flex gap-x-3">
         <%= label_tag 'label', t('date.label'), :class => 'col-sm-2 control-label sr-only' %>
-        <%= select_tag 'label', options_for_select(label_options, 'creation'), :class => 'w-50 form-control' %>
+        <%= hidden_field_tag 'label', 'existence' %>
         <button class='btn btn-primary'><%= t('date_calculator.calculate_button') %>
       </div>
     <% end %>
