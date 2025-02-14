@@ -71,6 +71,8 @@
   <%= form.label_and_select("date_era", form.possible_options_for("date_era", true)) %>
   <%= form.label_and_select("date_calendar", form.possible_options_for("date_calendar", true)) %>
 
+  <%= form.label_and_textarea "date_notes", {:required => false} %>
+
   <% if single_dates.length > 0 %>
     <%= form.fields_for(single_dates.first, "structured_date_single") do |item| %>
       <% form.emit_template("structured_date_single_fields", item) %>

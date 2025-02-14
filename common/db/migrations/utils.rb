@@ -227,5 +227,7 @@ def log_date_migration(r)
   $stderr.puts("end                      : " + r[:end].to_s)
   $stderr.puts("era_id                   : " + r[:era_id].to_s)
   $stderr.puts("calendar_id              : " + r[:calendar_id].to_s)
+  $stderr.puts("QSA: certainty_end_id    : " + r[:certainty_end_id].to_s)
+  $stderr.puts("QSA: date_notes          : " + r[:date_notes].to_s)
   $stderr.puts("\n")
 end

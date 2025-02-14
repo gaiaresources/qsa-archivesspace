@@ -88,6 +88,7 @@ def create_structured_date(r, rel)
                                           :end_date_certainty_id => r[:certainty_end_id],
                                           :date_era_id => r[:era_id],
                                           :date_calendar_id => r[:calendar_id],
+                                          :date_notes => r[:date_notes],
                                           :create_time => Time.now,
                                           :system_mtime => Time.now,
                                           :user_mtime => Time.now,

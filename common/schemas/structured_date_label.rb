@@ -12,7 +12,8 @@
       "date_certainty" => {"type" => "string", "dynamic_enum" => "date_certainty"},
       "end_date_certainty" => {"type" => "string", "dynamic_enum" => "date_certainty"},
       "date_era" => {"type" => "string", "dynamic_enum" => "date_era"},
-      "date_calendar" => {"type" => "string", "dynamic_enum" => "date_calendar"}
+      "date_calendar" => {"type" => "string", "dynamic_enum" => "date_calendar"},
+      "date_notes" => {"type" => "string"},
     },
   },
 }
