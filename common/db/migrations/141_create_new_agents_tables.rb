@@ -225,7 +225,7 @@ Sequel.migration do
 
       Integer :agent_resource_id, :null => true
 
-      String :date_notes, :null => true # QSA
+      String :date_notes, :text => true, :null => true # QSA
 
       apply_mtime_columns
       Integer :lock_version, :default => 0, :null => false
