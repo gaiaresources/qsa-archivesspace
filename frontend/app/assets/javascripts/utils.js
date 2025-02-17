@@ -222,6 +222,9 @@ $(function () {
 // select fields and combobox initialisation
 $(function () {
   var initComboboxFields = function (scope) {
+    /* QSA Disable as combobox is broken in v4 */
+    return;
+
     scope = scope || $(document.body);
     $('select[data-combobox]:not(.initialised)', scope).each(function () {
       var $selectInput = $(this);
