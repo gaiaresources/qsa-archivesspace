@@ -90,6 +90,9 @@
     .drag-handle {
       position: relative;
       width: 2em;
+      background-image: asset-url('archivesspace/tree_drag_handle.gif');
+      background-repeat: no-repeat;
+      background-position: 4px 50%;
     }
     .drag-handle.drag-disabled {
       visibility: hidden;
