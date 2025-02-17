@@ -572,7 +572,7 @@ module AspaceFormHelper
     end
 
     def tooltip(name, prefix = '')
-      I18n.t_raw("#{prefix}#{i18n_for(name)}_tooltip", :default => '')
+      I18n.t("#{prefix}#{i18n_for(name)}_tooltip", :default => '')
     end
 
     def checkbox(name, opts = {}, default = true, force_checked = false)

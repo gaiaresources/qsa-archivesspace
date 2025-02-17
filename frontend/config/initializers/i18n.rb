@@ -1,14 +1,16 @@
 require 'aspace_i18n_enumeration_support'
 require 'mixed_content_parser'
 
+# I18n.t_raw is no longer a thing. So disabling this mixin.
+#
 # Disable I18n caching in dev mode
-if Rails.env == 'development'
-  module I18n
-    def self.t_raw(*args)
-      return self.t_raw_uncached(*args)
-    end
-  end
-end
+# if Rails.env == 'development'
+#   module I18n
+#     def self.t_raw(*args)
+#       return self.t_raw_uncached(*args)
+#     end
+#   end
+# end
 
 module ActionView
   module Helpers
