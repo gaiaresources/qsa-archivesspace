@@ -1,7 +1,8 @@
 require_relative "../bulk_archival_object_updater"
 
 class BulkArchivalObjectUpdaterRunner < JobRunner
-  register_for_job_type('bulk_archival_object_updater_job', :create_permissions => :update_resource_record)
+  # Disable for QSA
+  # register_for_job_type('bulk_archival_object_updater_job', :create_permissions => :update_resource_record)
 
   def run
     @job.write_output("Starting spreadsheet bulk archival object updater job\n")
