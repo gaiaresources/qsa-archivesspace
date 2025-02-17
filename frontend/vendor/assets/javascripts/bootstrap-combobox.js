@@ -453,7 +453,7 @@
       var $this = $(this)
         , data = $this.data('combobox')
         , options = typeof option == 'object' && option;
-      if(!data) {$this.data('combobox', (data = new Combobox(this, options)));}
+      if(!data) {$this.data('combobox', (data = new $.fn.combobox.Constructor(this, options)));}
       if (typeof option == 'string') {data[option]();}
     });
   };
