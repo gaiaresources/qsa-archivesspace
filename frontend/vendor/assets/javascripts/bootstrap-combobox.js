@@ -449,9 +449,6 @@
   /* COMBOBOX PLUGIN DEFINITION
    * =========================== */
   $.fn.combobox = function ( option ) {
-    /* QSA Disable as combobox is broken in v4 */
-    return;
-
     return this.each(function () {
       var $this = $(this)
         , data = $this.data('combobox')
