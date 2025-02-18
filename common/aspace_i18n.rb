@@ -2,6 +2,8 @@ require 'i18n'
 require 'asutils'
 require 'aspace_i18n_enumeration_support'
 
+require_relative 'aspace_i18n_qsa'
+
 class Backend < I18n::Backend::Simple
   include I18n::Backend::Fallbacks
 end
