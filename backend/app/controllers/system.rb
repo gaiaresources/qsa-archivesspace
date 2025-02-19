@@ -9,14 +9,16 @@ class ArchivesSpaceService < Sinatra::Base
     sys_info = ASUtils.get_diagnostics.reject { |k, v| k == :exception }
     sys_info[:db_info]= DB.sysinfo
 
-    schema = Solr::Schema.new(AppConfig[:solr_url])
-    config = Solr::Solrconfig.new(AppConfig[:solr_url])
-    sys_info[:solr_info] = {
-      schema_checksum_internal: schema.internal_checksum,
-      schema_checksum_external: schema.external_checksum,
-      solrconfig_checksum_internal: config.internal_checksum,
-      solrconfig_checksum_external: config.external_checksum,
-    }
+    if AppConfig[:solr_verify_checksums]
+      schema = Solr::Schema.new(AppConfig[:solr_url])
+      config = Solr::Solrconfig.new(AppConfig[:solr_url])
+      sys_info[:solr_info] = {
+        schema_checksum_internal: schema.internal_checksum,
+        schema_checksum_external: schema.external_checksum,
+        solrconfig_checksum_internal: config.internal_checksum,
+        solrconfig_checksum_external: config.external_checksum,
+      }
+    end
     json_response(sys_info)
   end
 
