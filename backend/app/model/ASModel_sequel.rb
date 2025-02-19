@@ -88,20 +88,19 @@ module ASModel
           SlugHelpers.is_slug_auto_enabled?(self)
 
           self[:is_slug_auto] = 0
-        end
-      elsif self.class == Repository
-        if (!self.exists? && (self[:slug].nil? || self[:slug].empty?))
-          cleaned_slug = SlugHelpers.clean_slug(self[:repo_code])
-          self[:slug] = SlugHelpers.run_dedupe_slug(cleaned_slug)
-          self[:is_slug_auto] = 1
-        elsif !SlugHelpers::is_slug_auto_enabled?(self) &&
-              !self[:slug].nil? && !self[:slug].empty? &&
-              self.column_changed?(:slug)
+        elsif self.class == Repository
+          if (!self.exists? && (self[:slug].nil? || self[:slug].empty?))
+            cleaned_slug = SlugHelpers.clean_slug(self[:repo_code])
+            self[:slug] = SlugHelpers.run_dedupe_slug(cleaned_slug)
+            self[:is_slug_auto] = 1
+          elsif !SlugHelpers::is_slug_auto_enabled?(self) &&
+                !self[:slug].nil? && !self[:slug].empty? &&
+                self.column_changed?(:slug)
 
-          cleaned_slug = SlugHelpers.clean_slug(self[:slug])
-          self[:slug] = SlugHelpers.run_dedupe_slug(cleaned_slug)
+            cleaned_slug = SlugHelpers.clean_slug(self[:slug])
+            self[:slug] = SlugHelpers.run_dedupe_slug(cleaned_slug)
+          end
         end
-
       end
     end
 
