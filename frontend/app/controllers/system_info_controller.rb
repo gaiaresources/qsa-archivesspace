@@ -21,7 +21,7 @@ class SystemInfoController < ApplicationController
     @app_context = params[:app_context] ? params[:app_context] : "frontend_log"
 
     if @app_context == "backend_log"
-      @log = JSONModel::HTTP::get_json("/system/log",
+      @log = JSONModel::HTTP::get_text("/system/log",
                                        "X-ArchivesSpace-Session" => Thread.current[:backend_session])
     else
       @log = Rails.logger.backlog_and_flush

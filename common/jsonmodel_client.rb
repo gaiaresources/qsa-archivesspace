@@ -248,6 +248,26 @@ module JSONModel
     end
 
 
+    def self.get_text(uri, params = {})
+      params = process_params(params)
+
+      uri = URI("#{backend_url}#{uri}")
+      uri.query = URI.encode_www_form(params)
+
+      response = get_response(uri)
+
+      if response.is_a?(Net::HTTPSuccess) || response.code == '200'
+        response.body
+      elsif response.code == '403'
+        raise AccessDeniedException.new
+      elsif response.code == '404'
+        raise RecordNotFound.new
+      else
+        raise response.body
+      end
+    end
+
+
     # Returns the session token to be sent to the backend when making
     # requests.
     def self.current_backend_session
