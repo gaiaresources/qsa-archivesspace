@@ -19,6 +19,8 @@
   <property name="aspace.solr.port" value="2999" />
   <property name="aspace.data_directory" value="${basedir}/../build" />
 
+  <property name="jruby_build_bin_path" value="./gems/jruby/${jruby_build_version}/bin" />
+
   <property environment="env"/>
   <!--
       Extra options for people who like lots of GC detail: -verbose:gc -XX:+PrintTenuringDistribution -XX:+PrintGCDetails -XX:+PrintGCTimeStamps -XX:+PrintGCApplicationStoppedTime -XX:+PrintGCApplicationConcurrentTime
@@ -275,7 +277,7 @@
       <env key="GEM_HOME" value="${gem_home}" />
       <env key="GEM_PATH" value="" />
       <env key="BUNDLE_PATH" value="${gem_home}" />
-      <arg line="../build/gems/bin/warble war" />
+      <arg line="../build/${jruby_build_bin_path}/warble war" />
     </java>
   </target>
 
@@ -362,7 +364,7 @@
       <env key="GEM_HOME" value="${gem_home}" />
       <env key="GEM_PATH" value="" />
       <env key="BUNDLE_PATH" value="${gem_home}" />
-      <arg line="../build/gems/bin/warble war" />
+      <arg line="../build/${jruby_build_bin_path}/warble war" />
     </java>
   </target>
 
@@ -391,7 +393,7 @@
       <env key="GEM_HOME" value="${gem_home}" />
       <env key="GEM_PATH" value="" />
       <env key="BUNDLE_PATH" value="${gem_home}" />
-      <arg line="../build/gems/bin/warble war" />
+      <arg line="../build/${jruby_build_bin_path}/warble war" />
     </java>
   </target>
 
@@ -500,7 +502,7 @@
       <env key="GEM_HOME" value="${gem_home}" />
       <env key="GEM_PATH" value="" />
       <env key="BUNDLE_PATH" value="${gem_home}" />
-      <arg line="../build/gems/bin/warble war" />
+      <arg line="../build/${jruby_build_bin_path}/warble war" />
     </java>
   </target>
 
@@ -1005,7 +1007,7 @@
       <env key="GEM_HOME" value="${gem_home}" />
       <env key="GEM_PATH" value="" />
       <env key="BUNDLE_PATH" value="${gem_home}" />
-      <arg line="../build/gems/bin/warble war" />
+      <arg line="../build/${jruby_build_bin_path}/warble war" />
     </java>
   </target>
 
