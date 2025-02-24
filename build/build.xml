@@ -9,8 +9,16 @@
   <property name="solr_url" value="https://repo1.maven.org/maven2/org/apache/solr/solr/4.10.4/solr-4.10.4.war" />
   <property name="solr_file" value="solr-4.10.4.war" />
 
-  <property name="jettyrunner_url" value="https://repo1.maven.org/maven2/org/eclipse/jetty/jetty-runner/9.2.22.v20170606/jetty-runner-9.2.22.v20170606.jar" />
-  <property name="jettyrunner_file" value="jetty-runner-9.2.22.v20170606.jar" />
+  <property name="jruby_rack_version" value="1.2.2" />
+  <property name="rack_version" value="2.2.9" />
+  <property name="bundler_version" value="2.5.15" />
+  <property name="jruby_rack_file" value="jruby-rack-${jruby_rack_version}.jar" />
+  <property name="jruby_rack_url" value="https://repo1.maven.org/maven2/org/jruby/rack/jruby-rack/${jruby_rack_version}/jruby-rack-${jruby_rack_version}.jar" />
+
+  <property name="jettyrunner_url" value="https://repo1.maven.org/maven2/org/eclipse/jetty/jetty-runner/10.0.22/jetty-runner-10.0.22.jar" />
+  <property name="jettyrunner_file" value="jetty-runner-10.0.22.jar" />
+  <property name="jettywebapp_url" value="https://repo1.maven.org/maven2/org/eclipse/jetty/jetty-webapp/10.0.22/jetty-webapp-10.0.22.jar" />
+  <property name="jettywebapp_file" value="jetty-webapp-10.0.22.jar" />
 
   <property name="gem_home" location="gems" />
   <property name="aspace.backend.port" value="4567" />
@@ -77,10 +85,14 @@
     <delete>
       <fileset dir="." includes="jruby-complete*.jar" excludes="${jruby_file}" />
     </delete>
-
+    <mkdir dir="../launcher/lib" />
+    <delete>
+      <fileset dir="../launcher/lib" includes="*.jar" excludes="${jettyrunner_file},#{jettywebapp_file}" />
+    </delete>
     <get src="${jruby_url}" dest="${jruby_file}" skipexisting="true" verbose="true" usetimestamp="true" />
-    <get src="${solr_url}" dest="${solr_file}" skipexisting="true" verbose="true" usetimestamp="true" />
-    <get src="${jettyrunner_url}" dest="${jettyrunner_file}" skipexisting="true" verbose="true" usetimestamp="true" />
+    <get src="${jruby_rack_url}" dest="${jruby_rack_file}" skipexisting="true" verbose="true" usetimestamp="true" />
+    <get src="${jettyrunner_url}" dest="../launcher/lib/${jettyrunner_file}" skipexisting="true" verbose="true" usetimestamp="true" />
+    <get src="${jettywebapp_url}" dest="../launcher/lib/${jettywebapp_file}" skipexisting="true" verbose="true" usetimestamp="true" />
   </target>
 
 
@@ -738,9 +750,25 @@
     <copy file="scripts/migrate_db.rb" todir="target/archivesspace/scripts/rb" />
 <!--    <copy file="scripts/checkindex.rb" todir="target/archivesspace/scripts/rb" />-->
 
+    <!-- bundler -->
     <copy todir="target/archivesspace/gems">
-      <fileset dir="gems" excludes="cache/*,doc/*,gems/jruby-jars-1.7.11/lib/*.dev.jar,gems/**/spec/,gems/warbler-*" />
+      <fileset dir="gems" excludes="jruby/**" />
     </copy>
+    <!-- jruby gems -->
+    <copy todir="target/archivesspace/gems">
+      <fileset dir="gems/jruby/${jruby_build_version}">
+        <exclude name="cache/**" />
+        <exclude name="doc/**" />
+        <exclude name="**/jdbc-mysql-*/**" />
+        <exclude name="**/warbler-*/**" />
+      </fileset>
+    </copy>
+    <!-- jruby rack -->
+    <!-- The ArchivesSpace build of the JRuby Rack jar replaces the rubygems bundled version -->
+    <copy file="${jruby_rack_file}"
+      todir="target/archivesspace/gems/gems/jruby-rack-${jruby_rack_version}/lib/"
+      overwrite="true"
+    />
 
     <copy todir="target/archivesspace/launcher">
       <fileset dir="../launcher" excludes="backup/*" />
@@ -821,6 +849,15 @@
 
     <antcall target="set-classpath" />
     <antcall target="bootstrap"><param name="excluded-gem-groups" value="test development doc" /></antcall>
+
+    <!-- we want to use warbler for this build task, but since it is going to be filtered out
+         of the zip (see below), we don't want Bundler whining about it when Bundle.require
+         is invoked at runtime, so the next line is just about getting a new .bundle/config
+         file in the backend.war -->
+    <antcall target="bundler">
+      <param name="gemfile" value="../backend/Gemfile" />
+      <param name="excluded-gem-groups" value="test development doc build" />
+    </antcall>
 
     <parallel>
       <!-- <antcall target="oai:war"><param name="excluded-gem-groups" value="test development doc" /></antcall> -->

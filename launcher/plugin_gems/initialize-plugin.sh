@@ -8,7 +8,7 @@ unset GEM_PATH
 
 export ASPACE_LAUNCHER_BASE="$("`dirname $0`"/find-base.sh)"
 
-cd "$ASPACE_LAUNCHER_BASE/gems/jruby/*/gems"
+cd "$ASPACE_LAUNCHER_BASE/gems/gems"
 BUNDLER_VERSION=$(ls | grep bundler | cut -d'-' -f 2)
 
 cd "$ASPACE_LAUNCHER_BASE/plugins/$plugin"
@@ -24,11 +24,11 @@ if [ "$?" != "0" ]; then
 fi
 
 export JRUBY=
-for dir in "$ASPACE_LAUNCHER_BASE"/gems/jruby/*/gems/jruby-*; do
+for dir in "$ASPACE_LAUNCHER_BASE"/gems/gems/jruby-*; do
     JRUBY="$JRUBY:$dir/lib/*"
 done
 
-export GEM_HOME="`cd "$PWD/gems/jruby/"*"/"; pwd`"
+export GEM_HOME=gems
 
 java $JAVA_OPTS -cp "../../lib/*$JRUBY" org.jruby.Main -S gem install bundler -v "$BUNDLER_VERSION"
 java $JAVA_OPTS -cp "../../lib/*$JRUBY" org.jruby.Main "$ASPACE_LAUNCHER_BASE"/gems/bin/bundle install --gemfile=Gemfile

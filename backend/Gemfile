@@ -47,8 +47,9 @@ group :development, :test do
   gem 'pry-nav'
 end
 
-# This is needed for the launcher.  Why was it marked as :development?
-gem 'mizuno-aspace'
+group :development, :test do
+  gem 'mizuno-aspace'
+end
 
 gem 'multipart-post', '~> 2.4'
 gem 'net-http-persistent', '>= 4.0.1'
