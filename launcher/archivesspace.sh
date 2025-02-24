@@ -129,7 +129,7 @@ fi
 
 
 export JRUBY=
-for dir in "$ASPACE_LAUNCHER_BASE"/gems/gems/jruby-*; do
+for dir in "$ASPACE_LAUNCHER_BASE"/gems/jruby/*/gems/jruby-*; do
     JRUBY="$JRUBY:$dir/lib/*"
 done
 

@@ -9,7 +9,7 @@ export GEM_HOME="$PWD/../gems"
 export GEM_PATH=
 
 export JRUBY=
-for dir in ../gems/gems/jruby-*; do
+for dir in ../gems/jruby/*/gems/jruby-*; do
     JRUBY="$JRUBY:$dir/lib/*"
 done
 

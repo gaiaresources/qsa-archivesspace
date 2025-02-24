@@ -5,7 +5,7 @@
 # Non-portable!  Just for development purposes...
 
 basedir="`dirname $0`/../"
-export GEM_HOME="`(cd "$basedir/build/gems"; pwd)`"
+export GEM_HOME="`(cd "$basedir/build/gems/jruby/*/"; pwd)`"
 export GEM_PATH=""
 
 exec java $JAVA_OPTS -cp "$basedir/build/*:$basedir/common/lib/*" org.jruby.Main ${1+"$@"}
