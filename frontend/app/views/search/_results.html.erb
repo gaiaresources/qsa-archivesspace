@@ -17,7 +17,7 @@
     <div class="record-pane">
       <%= link_to_help :topic => "search" %>
       <% if !params[:linker] %>
-        <h3><%= title %></h3>
+        <h2><%= title %></h2>
       <% end %>
       <%= render_aspace_partial :partial => "search/listing" %>
     </div>
