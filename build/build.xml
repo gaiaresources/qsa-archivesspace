@@ -740,7 +740,7 @@
       <fileset dir="../common/lib" />
     </copy>
 
-    <copy file="solr.war" todir="target/archivesspace/wars" />
+    <!-- <copy file="solr.war" todir="target/archivesspace/wars" /> -->
     <copy file="../backend/backend.war" todir="target/archivesspace/wars" />
     <copy file="../frontend/frontend.war" todir="target/archivesspace/wars" />
     <!-- <copy file="../public/public.war" tofile="target/archivesspace/wars/public.war" /> -->
