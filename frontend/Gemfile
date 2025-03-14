@@ -83,4 +83,4 @@ ASUtils.load_plugin_gems(self)
 
 gem "zxcvbn-ruby", "~> 1.2"
 
-gem 'qsa_shared', git: 'https://gitlab.gaiaresources.com.au/qsa/qsa_shared.git'
+gem 'qsa_shared', git: 'https://gitlab.gaiaresources.com.au/qsa/qsa_shared.git', branch: 'evergreen'
