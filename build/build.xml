@@ -864,7 +864,7 @@
       <antcall target="backend:war"><param name="excluded-gem-groups" value="test development doc" /></antcall>
       <antcall target="frontend:war"><param name="excluded-gem-groups" value="test development doc" /></antcall>
       <!-- <antcall target="public:war"><param name="excluded-gem-groups" value="test development doc" /></antcall> -->
-      <antcall target="solr:war"><param name="excluded-gem-groups" value="test development doc" /></antcall>
+      <!-- <antcall target="solr:war"><param name="excluded-gem-groups" value="test development doc" /></antcall> -->
       <antcall target="indexer:war"><param name="excluded-gem-groups" value="test development doc" /></antcall>
     </parallel>
 
