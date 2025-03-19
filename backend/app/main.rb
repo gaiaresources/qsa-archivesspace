@@ -247,6 +247,22 @@ class ArchivesSpaceService < Sinatra::Base
 
       Relationships.verify!
 
+      start_prime_time = Time.now.to_i
+      Log.info("Priming relationships cache")
+      ASModel.all_models.sort_by {|m| m.to_s}.each do |model|
+        if model.ancestors.include?(Relationships)
+          begin
+            count = model.eager(model.associations).limit(1).all.length
+
+            Log.info("  Primed #{count} record(s) for model #{model}")
+          rescue
+            # Best effort
+          end
+        end
+      end
+      end_prime_time = Time.now.to_i
+      Log.info("Finished: priming relationships cache in #{end_prime_time - start_prime_time} seconds")
+
       @plugins_loaded_hooks.each do |hook|
         hook.call
       end
