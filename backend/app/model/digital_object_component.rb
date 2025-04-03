@@ -20,7 +20,7 @@ class DigitalObjectComponent < Sequel::Model(:digital_object_component)
   include Events
   include Publishable
   include TouchRecords
-  include RepresentativeFileVersion
+  # include RepresentativeFileVersion
 
   enable_suppression
 
