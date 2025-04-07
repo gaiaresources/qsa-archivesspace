@@ -113,7 +113,7 @@ class AgentHandler < Handler
       model = get_model(agent[:type])
       ret_agent = save(ret_agent, model)
     rescue Exception => e
-      raise Exception.new(I18n.t("bulk_import.error.no_create", :why => e.message))
+      raise StandardError.new(I18n.t("bulk_import.error.no_create", :why => e.message))
     end
     ret_agent
   end

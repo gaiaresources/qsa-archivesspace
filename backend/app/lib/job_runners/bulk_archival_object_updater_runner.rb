@@ -11,7 +11,7 @@ class BulkArchivalObjectUpdaterRunner < JobRunner
       @job.write_output("\nNo spreadsheet found.\n")
       @job.finish!(:failed)
 
-      raise Exception.new('No spreadsheet found.')
+      raise StandardError.new('No spreadsheet found.')
     end
 
     spreadsheet = @job.job_files[0]

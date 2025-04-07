@@ -15,7 +15,7 @@ class TopContainerLinkerRunner < JobRunner
            RequestContext.open(:current_username => @job.owner.username,
              :repo_id => @job.repo_id) do
             if @job.job_files.empty?
-              raise Exception.new(I18n.t("top_container_linker.error.job_file_empty"))
+              raise StandardError.new(I18n.t("top_container_linker.error.job_file_empty"))
             end
             input_file = @job.job_files[0].full_file_path
 

@@ -58,7 +58,7 @@ class SubjectHandler < Handler
       begin
         if !subj
           # we do this here in case there's a valid ID, even with bad source & type
-          raise Exception.new(errs.join("; ")) if !errs.empty?
+          raise StandardError.new(errs.join("; ")) if !errs.empty?
           begin
             subj = get_db_subj(subject, has_source, report)
           rescue Exception => e

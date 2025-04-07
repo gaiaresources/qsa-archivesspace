@@ -181,7 +181,7 @@ class BulkImportParser
       end
     end
     if !dups.empty?
-      raise Exception.new(I18n.t("bulk_import.error.duplicates", :codes => dups))
+      raise StandardError.new(I18n.t("bulk_import.error.duplicates", :codes => dups))
     end
   end
 

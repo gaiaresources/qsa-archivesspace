@@ -418,7 +418,7 @@ module JSONModel
         raise ValidationException.new(:invalid_object => self,
                                       :errors => err["error"])
       else
-        raise Exception.new("Unknown response: #{response.body} (code: #{response.code})")
+        raise StandardError.new("Unknown response: #{response.body} (code: #{response.code})")
       end
     end
 
@@ -447,7 +447,7 @@ module JSONModel
         err = ASUtils.json_parse(response.body)
         raise ConflictException.new(err["error"])
       else
-        raise Exception.new("Unknown response: #{response}")
+        raise StandardError.new("Unknown response: #{response}")
       end
     end
 

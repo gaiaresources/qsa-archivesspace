@@ -85,7 +85,7 @@ class AssetPathRewriter
         end
       end
     rescue Exception => e
-      throw Exception.new "failed to rewrite #{path} for #{prefix} - #{e.message}"
+      throw StandardError.new "failed to rewrite #{path} for #{prefix} - #{e.message}"
     end
   end
 end
