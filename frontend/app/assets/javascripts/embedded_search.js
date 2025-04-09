@@ -6,7 +6,7 @@ $(function () {
     $this.data('initialised', true);
 
     $this.on('click', 'a', function (event) {
-      if ($(this).closest('.table-record-actions').length > 0) {
+      if ($(this).closest('#tabledSearchResults tbody').length > 0) {
         return;
       }
 
