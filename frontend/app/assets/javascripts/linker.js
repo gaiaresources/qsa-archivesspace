@@ -198,6 +198,21 @@ $(function () {
                   }
                 );
 
+                if (config.allow_multiple) {
+                  var $input = $('<input type="checkbox" name="select-all">');
+
+                  $input.change(function () {
+                    var all_state = $(this).is(":checked")
+                    $(":input[name=linker-item]", $linkerBrowseContainer).each(function () {
+                      if (all_state !== $(this).is(":checked")) {
+                        $(this).trigger("click");
+                      }
+                    });
+                  });
+
+                  $linkerBrowseContainer.find('thead tr:first th:first').append($input);
+                }
+
                 // select a result if it's currently a selected record
                 $.each(currentlySelected, function (uri) {
                   $(":input[value='" + uri + "']", $linkerBrowseContainer)
