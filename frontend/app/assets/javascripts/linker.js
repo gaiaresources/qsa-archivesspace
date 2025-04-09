@@ -24,9 +24,17 @@ $(function () {
       // persists. we can remove those after the linker does its thing.
       $('.prelinker', $linkerWrapper).remove();
 
+      function appendLinkerParam(url) {
+          if (url.indexOf('?') >= 0) {
+              return url + '&linker=true';
+          } else {
+              return url + '?linker=true';
+          }
+      }
+
       var config = {
-        url: decodeURIComponent($this.data('url')),
-        browse_url: decodeURIComponent($this.data('browse-url')),
+        url: appendLinkerParam(decodeURIComponent($this.data('url'))),
+        browse_url: appendLinkerParam(decodeURIComponent($this.data('browse-url'))),
         span_class: $this.data('span-class'),
         format_template: $this.data('format_template'),
         format_template_id: $this.data('format_template_id'),

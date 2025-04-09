@@ -70,11 +70,7 @@ class SearchController < ApplicationController
     # linker typeaheads should always sort by score
     context_criteria["sort"] = "score desc" if params["linker"]
 
-    @search_data = Search.all(session[:repo_id], criteria, context_criteria)
-    @hide_sort_options = params[:hide_sort_options] == "true"
-    @hide_csv_download = params[:hide_csv_download] == "true"
-
-    if params[:q] && params[:q].end_with?("*")
+    if criteria['q'] && criteria['q'].end_with?("*")
       # Typeahead search from a linker using wildcards.  These interact badly
       # with stemming because the wildcard causes query analysis to be skipped,
       # so stemming isn't applied to the query.
@@ -85,10 +81,14 @@ class SearchController < ApplicationController
       # Try to minimise the weird effects of this by searching for the
       # non-wildcard version as well.  The real solution here is to stop using
       # wildcards and use an ngram field instead.
-      q = params[:q]
+      q = criteria['q']
 
-      params[:q] = "(#{q}) OR (#{q.gsub('*', '')})"
+      criteria['q'] = "(#{q}) OR (#{q.gsub('*', '')})"
     end
+
+    @search_data = Search.all(session[:repo_id], criteria, context_criteria)
+    @hide_sort_options = params[:hide_sort_options] == "true"
+    @hide_csv_download = params[:hide_csv_download] == "true"
 
     respond_to do |format|
       format.json {
