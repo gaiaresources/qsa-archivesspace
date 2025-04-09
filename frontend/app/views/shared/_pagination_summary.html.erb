@@ -15,6 +15,7 @@
         <%= @search_data.sorted_by_label %>
       </button>
       <ul class="dropdown-menu dropdown-menu-right sort-opts">
+        <li class="dropdown-item p-0"><%= link_to "Relevance", build_search_params("sort" => ""), :class => 'py-1 px-4 d-block text-decoration-none menu-with-options' %></li>
         <% @search_data.sort_fields.each do |field, label| %>
           <% next if field == 'score' && @search_data.sorted_by?(field) %>
           <li class="dropdown-item p-0 dropdown-submenu">
