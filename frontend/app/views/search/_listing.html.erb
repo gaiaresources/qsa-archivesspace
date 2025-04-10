@@ -1,3 +1,160 @@
+<%
+  # QSA column overrides
+  browseScreenOverrides = {
+    'agents' => ['index'],
+    'mandates' => ['index'],
+    'functions' => ['index'],
+    'resources' => ['index'],
+    'archival_objects' => ['index'],
+    'representations' => ['index'],
+    'locations' => ['index'],
+    'subjects' => ['index'],
+    'search' => ['do_search', 'advanced_search'],
+    'conservation_requests' => ['index'],
+  }
+
+  skippedColumns = {
+    'locations' => [:start_date, :end_date, :published],
+    'subjects' => [:start_date, :end_date, :published],
+    'search' => [:published],
+    'conservation_requests' => [:start_date, :end_date, :published],
+  }
+
+  begin
+    if browseScreenOverrides.fetch(controller.controller_name, []).include?(controller.action_name)
+      @columns = []
+
+      # reset the sort colummns
+      @search_data.sort_fields.clear
+
+      if params[:linker] == 'true' # srsly?
+        add_linker_column
+      elsif params[:listing_only] != 'true'
+        add_multiselect_column
+      end
+
+      if controller.controller_name == 'search'
+        add_column(I18n.t("search.multi.primary_type"), {:field => 'primary_type', :locale_key => '_singular',
+                                                         :sortable => true, :type => 'string'})
+      end
+
+      skippedColumns = skippedColumns.fetch(controller.controller_name, [])
+
+      unless skippedColumns.include?(:id)
+        add_column('ID',
+                   {:sortable => true, :sort_by => 'qsa_id_u_sort'},
+                   proc { |record|
+                     record['_json_parsed_'] ||= ASUtils.json_parse(record['json'])
+                     # show the QSA ID or just the ID if no QSA ID
+                     if record['_json_parsed_']['qsa_id_prefixed']
+                       QSAIdHelper.id(record['_json_parsed_']['qsa_id_prefixed'])
+                     else
+                       JSONModel(record['_json_parsed_']['jsonmodel_type'].intern).id_for(record['id']).to_s
+                     end
+                   })
+      end
+
+      unless skippedColumns.include?(:title)
+        # FIXME: was like this:
+        # add_column(title_column_header_label,
+        # that method is no longer a thing so hardcoding for now
+        add_column('Title',
+                   {:sortable => true, :sort_by => 'title_sort'},
+                   proc { |record|
+                     clean_mixed_content(record["title"] || record['display_string']).html_safe
+                   })
+      end
+
+      unless skippedColumns.include?(:start_date)
+        add_column('Start Date',
+                   {:sortable => true, :sort_by => 'date_start_u_ssort', :cell_class => 'browse-date-column'},
+                   proc { |record|
+                     Array(record['date_start_u_sstr']).first
+                   })
+      end
+
+      unless skippedColumns.include?(:end_date)
+        add_column('End Date',
+                   {:sortable => true, :sort_by => 'date_end_u_ssort', :cell_class => 'browse-date-column'},
+                   proc { |record|
+                     Array(record['date_end_u_sstr']).first
+                   })
+      end
+
+      unless skippedColumns.include?(:published)
+        add_column('Published?',
+                   {:sortable => true, :sort_by => 'publish'},
+                   proc { |record|
+                     record['publish'] ? 'Yes' : 'No'
+                   })
+      end
+
+      if ['representations', 'archival_objects'].include?(controller.controller_name)
+        add_column(I18n.t("representation.rap_expiry_date"),
+                   {:sortable => true, :sort_by => 'rap_expiry_date_sort_u_ssortdate', :cell_class => 'browse-date-column'},
+                   proc {|record|
+                     if record.fetch('rap_expiry_date_u_sstr', [])[0]
+                       (record.fetch('rap_expiry_date_u_sstr', [])[0] + (record.fetch('rap_expired_u_sbool', [])[0] ? ' (expired)' : ''))
+                     else
+                       ''
+                     end
+                   })
+      end
+
+      if controller.controller_name == 'representations'
+        add_column(I18n.t("representation.building"),
+                   {:sortable => true, :sort_by => 'record_home_building_u_ssort'},
+                   proc {|record| record.fetch('record_home_building_u_ssort', '')})
+
+        add_column(I18n.t("representation.home_row"),
+                   {:sortable => true, :sort_by => 'record_home_row_u_ssort'},
+                   proc {|record| record.fetch('record_home_row_u_ssort', '')})
+
+        add_column(I18n.t("representation.home_press"),
+                   {:sortable => true, :sort_by => 'record_home_press_u_ssort'},
+                   proc {|record| record.fetch('record_home_press_u_ssort', '')})
+
+        add_column(I18n.t("representation.home_bay"),
+                   {:sortable => true, :sort_by => 'record_home_bay_u_ssort'},
+                   proc {|record| record.fetch('record_home_bay_u_ssort', '')})
+      elsif controller.controller_name == 'conservation_requests'
+        add_column(I18n.t("conservation_request.status"),
+                   {:sortable => true, :sort_by => 'conservation_request_status_u_ssort'},
+                   proc {|record| record.fetch('conservation_request_status_u_ssort')})
+
+        add_column(I18n.t("conservation_request.reason_requested"),
+                   {:sortable => true, :sort_by => 'conservation_request_reason_requested_u_ssort'},
+                   proc {|record| record.fetch('conservation_request_reason_requested_u_ssort')})
+
+        add_column(I18n.t("conservation_request.date_of_request"),
+                   {:sortable => true, :sort_by => 'conservation_request_date_of_request_u_ssortdate'},
+                   proc {|record| record.fetch('conservation_request_date_of_request_u_sstr')[0]})
+
+        add_column(I18n.t("conservation_request.date_required_by"),
+                   {:sortable => true, :sort_by => 'conservation_request_date_required_by_u_ssortdate'},
+                   proc {|record| record.fetch('conservation_request_date_required_by_u_sstr', [])[0]})
+      end
+
+      # # add the default sort columns again
+      SearchResultData.BASE_SORT_FIELDS.each do |sort_field|
+        @search_data.sort_fields[sort_field] = I18n.t("search.multi.#{sort_field}")
+      end
+
+      if controller.controller_name == 'search'
+        add_column(sr_only('Audit Information'),
+                   {:template => "search/audit_info_cell", :cell_class => 'audit-display-compact'})
+      end
+
+      add_actions_column
+    end
+  rescue
+    logger.error("Failure in as_runcorn search override.  Error was: #{$!}")
+    logger.error($@.join("\n"))
+    raise $!
+  end
+%>
+
+
 <% if @search_data.results? %>
 
   <% add_columns %>
