@@ -329,7 +329,8 @@ class EACSerializer < ASpaceExport::Serializer
         # next unless n['publish']
         with(xml, _sorted_notes(json['notes'])) do |n|
           # next unless n['publish']
-          xml.send(_note_elem_type(n['jsonmodel_type'])) do
+          next unless (supported_note_type = _note_elem_type(n['jsonmodel_type']))
+          xml.send(supported_note_type) do
             n['subnotes'].each do |sn|
               case sn['jsonmodel_type']
               when 'note_abstract'
