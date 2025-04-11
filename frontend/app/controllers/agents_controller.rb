@@ -134,7 +134,7 @@ class AgentsController < ApplicationController
       return
     end
 
-    flash[:success] = t('agent._frontend.messages.deleted')
+    flash[:success] = t('agent._frontend.messages.deleted', **JSONModelI18nWrapper.new(agent: agent))
     redirect_to(controller: :agents, action: :index, deleted_uri: agent.uri)
   end
 
@@ -144,7 +144,7 @@ class AgentsController < ApplicationController
     response = JSONModel::HTTP.post_form("#{agent.uri}/publish")
 
     if response.code == '200'
-      flash[:success] = t('agent._frontend.messages.published', agent_title: clean_mixed_content(agent.display_name['sort_name']))
+      flash[:success] = t('agent._frontend.messages.published', **JSONModelI18nWrapper.new(agent: agent).enable_parse_mixed_content!(url_for(:root)))
     else
       flash[:error] = ASUtils.json_parse(response.body)['error'].to_s
     end
