@@ -58,7 +58,7 @@
         # FIXME: was like this:
         # add_column(title_column_header_label,
         # that method is no longer a thing so hardcoding for now
-        add_column('Title',
+        add_column(@title_column_override || 'Title',
                    {:sortable => true, :sort_by => 'title_sort'},
                    proc { |record|
                      clean_mixed_content(record["title"] || record['display_string']).html_safe
