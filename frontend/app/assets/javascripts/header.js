@@ -117,11 +117,13 @@ $(function () {
       event.stopPropagation();
       event.preventDefault();
 
+      console.log('HIT');
+
       $(this).closest('fieldset').remove();
 
       // Ensure first row operator select only offers "NOT" value
       var $firstOpSelect = $(
-        '.advanced-search-row-container >.row:first-child .advanced-search-row-op-input'
+        '.advanced-search-row-container > fieldset:first-child .advanced-search-row-op-input'
       );
       if ($firstOpSelect.length > 0) {
         var $newOpSelect = AS.renderTemplate(
