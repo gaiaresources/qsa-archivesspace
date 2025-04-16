@@ -1,7 +1,7 @@
 class SubjectsController < ApplicationController
 
   set_access_control  "view_repository" => [:index, :show],
-                      "update_subject_record" => [:new, :edit, :create, :update, :merge],
+                      "update_subject_record" => [:new, :edit, :create, :update, :merge, :terms_complete],
                       "delete_subject_record" => [:delete],
                       "manage_repository" => [:defaults, :update_defaults]
 
@@ -129,20 +129,18 @@ class SubjectsController < ApplicationController
   def terms_complete
     query = "#{params[:query]}".strip
 
-    if !query.empty?
-      begin
-        results = JSONModel::HTTP::get_json("/terms", :q => params[:query])['results']
-
-        return render :json => results.map {|term|
-          term["_translated"] = {}
-          term["_translated"]["term_type"] = t("enumerations.subject_term_type.#{term["term_type"]}")
-          term
-        }
-      rescue
-      end
+    if query.empty?
+      render :json => []
+      return
     end
 
-    render :json => []
+    results = JSONModel::HTTP::get_json("/terms", :q => params[:query])
+
+    render :json => results.map {|term|
+      term["_translated"] = {}
+      term["_translated"]["term_type"] = t("enumerations.subject_term_type.#{term["term_type"]}", default: term["term_type"])
+      term
+    }
   end
 
 

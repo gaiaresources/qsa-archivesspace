@@ -7,9 +7,11 @@ class ArchivesSpaceService < Sinatra::Base
     .returns([200, "[(:term)]"]) \
   do
     query = params[:q].gsub(/[%]/, '').downcase
-    handle_listing(Term, {:page => 1, :page_size => 20, :modified_since => 0},
-                   Sequel.like(Sequel.function(:lower, :term),
-                               "#{query}%"))
+    listing_response(Term
+                       .filter(Sequel.like(Sequel.function(:lower, :term),
+                                "#{query}%"))
+                       .limit(20),
+                     Term)
   end
 
 end
