@@ -47,7 +47,7 @@
                      record['_json_parsed_'] ||= ASUtils.json_parse(record['json'])
                      # show the QSA ID or just the ID if no QSA ID
                      if record['_json_parsed_']['qsa_id_prefixed']
-                       QSAIdHelper.id(record['_json_parsed_']['qsa_id_prefixed'])
+                       QSAIdHelper.id(record['_json_parsed_']['qsa_id_prefixed'], :link => true)
                      else
                        JSONModel(record['_json_parsed_']['jsonmodel_type'].intern).id_for(record['id']).to_s
                      end
