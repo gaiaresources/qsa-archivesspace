@@ -65,4 +65,6 @@ ASUtils.load_plugin_gems(self)
 gem "actionmailer", "6.1.6"
 gem "write_xlsx", "1.01.0"
 
-gem 'xlsx_streaming_reader', git: 'https://github.com/hudmol/xlsx_streaming_reader.git'
+# Load the QSA Gemfile
+qsa_gemfile = File.join(ASUtils.find_base_directory, 'qsa', 'Gemfile')
+self.instance_eval(File.read(qsa_gemfile), qsa_gemfile, 1)

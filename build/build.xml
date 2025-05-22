@@ -840,6 +840,7 @@
       <zipfileset dir="../launcher/backup" includes="backup.bat" prefix="archivesspace/scripts" filemode="644" />
       <zipfileset dir="../launcher/ead_export" includes="ead_export.sh" prefix="archivesspace/scripts" filemode="755" />
       <zipfileset dir="../launcher/ead_export" includes="ead_export.bat" prefix="archivesspace/scripts" filemode="644" />
+      <zipfileset dir="../qsa" prefix="archivesspace/qsa" filemode="755" />
     </zip>
   </target>
 

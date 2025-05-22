@@ -65,3 +65,4 @@ launcher/lib/*
 *~undo-tree~
 /cherry-pick--skip.sh
 /cherry-pick-show.sh
+/qsa/local_gems

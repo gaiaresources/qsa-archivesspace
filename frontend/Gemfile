@@ -83,4 +83,6 @@ ASUtils.load_plugin_gems(self)
 
 gem "zxcvbn-ruby", "~> 1.2"
 
-gem 'qsa_shared', git: 'https://gitlab.gaiaresources.com.au/qsa/qsa_shared.git', branch: 'evergreen'
+# Load the QSA Gemfile
+qsa_gemfile = File.join(ASUtils.find_base_directory, 'qsa', 'Gemfile')
+self.instance_eval(File.read(qsa_gemfile), qsa_gemfile, 1)

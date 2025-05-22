@@ -1,0 +1,64 @@
+$stderr.puts "LOADING QSA GEMS"
+
+ASpaceGems.setup if defined? ASpaceGems
+
+# If you change these, you may want to rm -rf ./local_gems/ and rerun
+# bootstrap.sh to pull down your updated versions.
+local_gems = [
+  {
+    gem: "xlsx_streaming_reader",
+    url: "git@gitlab.gaiaresources.com.au:qsa/xlsx_streaming_reader.git",
+    ref: "origin/evergreen",
+  },
+  {
+    gem: "qsa_shared",
+    url: "git@gitlab.gaiaresources.com.au:qsa/qsa_shared.git",
+    ref: "origin/evergreen",
+  },
+  {
+    gem: "map_validator",
+    url: "git@gitlab.gaiaresources.com.au:qsa/map_validator.git",
+    ref: "origin/evergreen",
+  },
+]
+
+
+local_gems_path = File.join(File.dirname(__FILE__), "local_gems")
+
+FileUtils.mkdir_p(local_gems_path)
+
+local_gems.each do |gem|
+  checkout_dir = File.join(local_gems_path, gem.fetch(:gem))
+
+  if $0 == "gems/bin/bundle"
+    # We're running a bootstrap.  Make sure we have the latest version of our
+    # dependency.  If it's a symlink, we assume you know what you're doing.
+    if File.exist?(File.join(checkout_dir, '.git')) && !File.symlink?(checkout_dir)
+      $stderr.puts("Resetting '%s' to %s" % [checkout_dir, gem[:ref]])
+      system("git", "-C", checkout_dir, "fetch", "origin")
+      system("git", "-C", checkout_dir, "reset", "--hard", gem.fetch(:ref))
+    end
+  end
+
+  # If the gem hasn't been checked out to local_gems/, grab a copy now.
+  unless Dir.exist?(checkout_dir)
+    system("git", "clone", gem.fetch(:url), checkout_dir)
+    system("git", "-C", checkout_dir, "reset", "--hard", gem.fetch(:ref))
+  end
+
+  # Add to load path
+  $LOAD_PATH << File.join(checkout_dir, 'lib')
+end
+
+# Require dependencies
+local_gems.each do |gem|
+  require gem.fetch(:gem)
+end
+
+source 'https://rubygems.org'
+
+gem "aws-sdk-s3", "1.138.0"
+gem "aws-sdk-sqs", "1.67.0"
+gem "mime-types"
+
+gem "html2text", "0.2.1"
