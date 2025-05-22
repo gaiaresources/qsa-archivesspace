@@ -404,7 +404,8 @@ DEPENDENCIES
   json-schema (= 1.0.10)
   loofah
   mechanize
-  mime-types
+  mime-types (= 3.5.2)
+  mime-types-data (= 3.2024.0507)
   multi_json (~> 1.15.0)
   multipart-post (~> 2.4)
   net-http-persistent (>= 4.0.1)

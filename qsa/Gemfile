@@ -59,6 +59,7 @@ source 'https://rubygems.org'
 
 gem "aws-sdk-s3", "1.138.0"
 gem "aws-sdk-sqs", "1.67.0"
-gem "mime-types"
+gem "mime-types", "3.5.2"
+gem "mime-types-data", "3.2024.0507"
 
 gem "html2text", "0.2.1"
