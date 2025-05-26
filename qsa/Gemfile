@@ -1,3 +1,26 @@
+#
+# Welcome!
+#
+# This file is the master Gemfile for QSA's ArchivesSpace installation, and
+# includes the gem dependencies of all of the plugins in one file.
+#
+# If you need to add/change/remove a gem dependency, you can do so at the bottom
+# of this file.
+#
+# Previously each plugin had its own Gemfile, but this caused headaches.
+# Sometimes a plugin would have a dependency (or a transitive dependency) on a
+# gem that was already present in the core ArchivesSpace build, and we would end
+# up with two different versions of the same gem installed.  Depending on how
+# bundler felt on the day, this would sometimes prevent the system from starting
+# up.
+#
+# So now we add all dependencies here.  This helps because this Gemfile is
+# loaded as a part of building the ArchivesSpace distribution, so Bundler can
+# determine a set of gem dependencies that satisfy ArchivesSpace as well as the
+# needs of the QSA plugins.  It also means any incompatibilities can be flagged
+# at build time, rather than only finding out when the system fails to start.
+#
+
 $stderr.puts "LOADING QSA GEMS"
 
 ASpaceGems.setup if defined? ASpaceGems
