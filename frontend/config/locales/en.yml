@@ -1018,11 +1018,11 @@ en:
 
   structured_date_range_fields:
     begin_date_expression: Begin Date Expression
-    begin_date_standardized: Begin Standardized Date
-    begin_date_standardized_type: Begin Standardized Date Type
+    begin_date_standardized: Begin Date
+    begin_date_standardized_type: Begin Date Type
     end_date_expression: End Date Expression
-    end_date_standardized: End Standardized Date
-    end_date_standardized_type: End Standardized Date Type
+    end_date_standardized: End Date
+    end_date_standardized_type: End Date Type
 
   date_type_structured:
     single: Single
