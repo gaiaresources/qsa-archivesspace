@@ -14,10 +14,10 @@
     <%= form.label_and_textfield("indicator") %>
 
     <%= form.label_and_textfield("barcode") %>
-    <div class="controls label-only">
-      <span class='help-inline'>
+    <div class="offset-sm-2 controls label-only">
+      <div class='help-inline' style="margin-left: 1em;">
         <%= t("top_container.barcode_length_for_this_repository") %> <%= barcode_length_range %> <%= t("top_container.characters") %>
-      </span>
+      </div>
     </div>
 
     <%= form.label_and_textfield("ils_holding_id") %>
