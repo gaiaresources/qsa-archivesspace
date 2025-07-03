@@ -296,16 +296,16 @@ $(function () {
       addAdvancedSearchRow(i, query['type'], i == 0, query);
     });
   }
-
-  function processKey(e) {
-    if (null == e) e = window.event;
-    if (e.keyCode == 13) {
-      document.getElementById('advanced-search-btn').click();
-      return false;
-    }
-  }
 });
 
+
+function processKey(e) {
+  if (null == e) e = window.event;
+  if (e.keyCode == 13) {
+    document.getElementById('advanced-search-btn').click();
+    return false;
+  }
+}
 
   // Series system advanced search function
   (function () {
