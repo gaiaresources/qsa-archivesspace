@@ -67,8 +67,12 @@ class SearchController < ApplicationController
 
     context_criteria = params["context_filter_term"] ? {"filter_term[]" => params["context_filter_term"]} : {}
 
-    # linker typeaheads should always sort by score
-    context_criteria["sort"] = "score desc" if params["linker"]
+    if params['sort']
+      # Leave it alone!
+    else
+      # linker typeaheads should sort by score if no sort specified.
+      context_criteria["sort"] = "score desc" if params["linker"]
+    end
 
     if criteria['q'] && criteria['q'].end_with?("*")
       # Typeahead search from a linker using wildcards.  These interact badly
