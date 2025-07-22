@@ -7,14 +7,12 @@
     'resources' => ['index'],
     'archival_objects' => ['index'],
     'representations' => ['index'],
-    'locations' => ['index'],
     'subjects' => ['index'],
     'search' => ['do_search', 'advanced_search'],
     'conservation_requests' => ['index'],
   }
 
   skippedColumns = {
-    'locations' => [:start_date, :end_date, :published],
     'subjects' => [:start_date, :end_date, :published],
     'search' => [:published],
     'conservation_requests' => [:start_date, :end_date, :published],
