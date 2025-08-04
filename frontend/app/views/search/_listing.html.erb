@@ -7,12 +7,14 @@
     'resources' => ['index'],
     'archival_objects' => ['index'],
     'representations' => ['index'],
+    'locations' => ['index'],
     'subjects' => ['index'],
     'search' => ['do_search', 'advanced_search'],
     'conservation_requests' => ['index'],
   }
 
   skippedColumns = {
+    'locations' => [:start_date, :end_date, :published],
     'subjects' => [:start_date, :end_date, :published],
     'search' => [:published],
     'conservation_requests' => [:start_date, :end_date, :published],
@@ -131,6 +133,27 @@
         add_column(I18n.t("conservation_request.date_required_by"),
                    {:sortable => true, :sort_by => 'conservation_request_date_required_by_u_ssortdate'},
                    proc {|record| record.fetch('conservation_request_date_required_by_u_sstr', [])[0]})
+      elsif controller.controller_name == 'locations'
+        add_column(I18n.t("location.building"),
+                   {:sortable => true, :sort_by => 'building'},
+                   proc {|record| record.fetch('building', '')})
+
+        add_column(I18n.t("location.floor"),
+                   {:sortable => true, :sort_by => 'floor'},
+                   proc {|record| record.fetch('floor', '')})
+
+        add_column(I18n.t("location.room"),
+                   {:sortable => true, :sort_by => 'room'},
+                   proc {|record| record.fetch('room', '')})
+
+        add_column(I18n.t("location.area"),
+                   {:sortable => true, :sort_by => 'area'},
+                   proc {|record| record.fetch('floor', '')})
+
+        add_column(I18n.t("location_profile._singular"),
+                   {:sortable => true, :sort_by => 'location_profile_display_string_u_ssort'},
+                   proc {|record| record.fetch('location_profile_display_string_u_ssort', '')})
+
       end
 
       # # add the default sort columns again
