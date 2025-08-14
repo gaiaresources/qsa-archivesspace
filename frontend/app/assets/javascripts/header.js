@@ -117,8 +117,6 @@ $(function () {
       event.stopPropagation();
       event.preventDefault();
 
-      console.log('HIT');
-
       $(this).closest('fieldset').remove();
 
       // Ensure first row operator select only offers "NOT" value
