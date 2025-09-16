@@ -154,6 +154,9 @@
                    {:sortable => true, :sort_by => 'location_profile_display_string_u_ssort'},
                    proc {|record| record.fetch('location_profile_display_string_u_ssort', '')})
 
+        add_column(I18n.t("search.location.location_holdings"),
+                   {:sortable => false, :template => 'location_holdings_cell'})
+
       end
 
       # # add the default sort columns again

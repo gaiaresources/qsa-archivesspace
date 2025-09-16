@@ -161,7 +161,7 @@
     </div>
     ${AS.renderTemplate("template_advanced_search_"+field_data.type+"_fields", field_data)}
     <div class="col-md-1 d-flex justify-content-center">
-      <button class="btn btn-danger advanced-search-remove-row" title="<%= t "advanced_search.remove_row", :number => "${field_data.index + 1}"%>" aria-label="<%= t "advanced_search.remove_row", :number => "${field_data.index + 1}"%>"><span class="glyphicon glyphicon-trash"></span></button>
+      <button class="btn btn-danger advanced-search-remove-row" title="<%= t "advanced_search.remove_row", :number => "${field_data.index + 1}"%>" aria-label="<%= t "advanced_search.remove_row", :number => "${field_data.index + 1}"%>" type="button"><span class="glyphicon glyphicon-trash"></span></button>
     </div>
   </fieldset>
 --></div>
@@ -328,7 +328,7 @@
     </div>
     <div class="col-md-1">
       <div class="d-flex justify-content-center dropdown">
-        <button class="btn btn-success dropdown-toggle text-white advanced-search-add-row-dropdown" data-toggle="dropdown" title="<%= t("advanced_search.add_row") %>" aria-label="<%= t("advanced_search.add_row") %>">
+        <button class="btn btn-success dropdown-toggle text-white advanced-search-add-row-dropdown" data-toggle="dropdown" title="<%= t("advanced_search.add_row") %>" aria-label="<%= t("advanced_search.add_row") %>" type="button">
           <span class="glyphicon glyphicon-plus"></span>
         </button>
         <div class="dropdown-menu x-auto">
@@ -356,7 +356,7 @@
     <% end %>
     <div class="col-md-1 d-flex justify-content-center">
       <!-- .col-md-1 wrapper to align button with +/- buttons above -->
-      <button class="btn btn-primary" id="advanced-search-btn"><%= t("advanced_search.button_text") %></button>
+      <button type="submit" class="btn btn-primary" id="advanced-search-btn"><%= t("advanced_search.button_text") %></button>
     </div>
   </div>
 <% end %>
