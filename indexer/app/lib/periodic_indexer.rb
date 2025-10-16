@@ -94,6 +94,11 @@ class PeriodicIndexer < IndexerCommon
     session = JSONModel::HTTP.current_backend_session
 
     Thread.new do
+      # Re-establish the session because the job and location indexing does some
+      # ad-hoc get_json calls now.
+      JSONModel.set_repository(repo_id)
+      JSONModel::HTTP.current_backend_session = session
+
       # Each worker thread will yield a value (Thread.value) indicating either
       # "did nothing", "complete success" or "errors encountered".
       worker_status = WORKER_STATUS_NOTHING_INDEXED
