@@ -194,7 +194,7 @@
           <% has_thumbnails_enabled = true if col.field == 'representative_file_version' %>
           <th class="<%= col.class %>">
             <% if col.sortable? %>
-              <%= link_to col.label, build_search_params("sort" => @search_data.sort_filter_for(col.sort_by)) %>
+              <%= link_to col.label, build_search_params("sort" => @search_data.sort_filter_for(col.sort_by), "header_sort" => 1) %>
             <% else %>
               <%= col.label %>
             <% end %>

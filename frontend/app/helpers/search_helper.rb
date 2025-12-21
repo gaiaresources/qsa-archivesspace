@@ -82,6 +82,10 @@ module SearchHelper
       end
     end
 
+    if (header_sort_val = opts.fetch('header_sort', nil))
+      search_params['header_sort'] = header_sort_val
+    end
+
     search_params.reject {|k, v| k.blank? or v.blank?}
   end
 
