@@ -316,7 +316,7 @@ AjaxTree.prototype.add_new_after = function(node, level, extra_params) {
         } else {
             /* Adding a child to something with existing children */
             var callback = function() {
-                var endmarker = node.nextAll('.table-row-group').last().find('.waypoint.indent-level-'+level+', .end-marker.indent-level-'+level);
+                var endmarker = node.nextAll('.table-row-group').last().find('.waypoint.indent-level-'+level+', .end-marker.indent-level-'+level).last();
                 endmarker.after($new_tr);
                 $new_tr.find('.record-title')[0].focus();
             };
