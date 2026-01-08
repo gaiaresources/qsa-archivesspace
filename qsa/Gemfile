@@ -31,17 +31,17 @@ local_gems = [
   {
     gem: "xlsx_streaming_reader",
     url: "git@gitlab.gaiaresources.com.au:qsa/xlsx_streaming_reader.git",
-    ref: "origin/evergreen",
+    ref: ENV.fetch("QSA_RELEASE_TAG", "origin/develop"),
   },
   {
     gem: "qsa_shared",
     url: "git@gitlab.gaiaresources.com.au:qsa/qsa_shared.git",
-    ref: "origin/evergreen",
+    ref: ENV.fetch("QSA_RELEASE_TAG", "origin/develop"),
   },
   {
     gem: "map_validator",
     url: "git@gitlab.gaiaresources.com.au:qsa/map_validator.git",
-    ref: "origin/evergreen",
+    ref: ENV.fetch("QSA_RELEASE_TAG", "origin/develop"),
   },
 ]
 
