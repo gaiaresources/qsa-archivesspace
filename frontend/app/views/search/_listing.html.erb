@@ -159,6 +159,13 @@
 
       end
 
+      if controller.controller_name == 'mandates'
+          add_column(I18n.t("mandate.mandate_type"),
+                     {:sortable => true, :sort_by => "mandate_type_u_ssort"},
+                     proc {|record| I18n.t("enumerations.mandate_type.#{record['mandate_type_u_ssort']}", :default => record['mandate_type_u_ssort'])})
+      end
+
+
       # # add the default sort columns again
       SearchResultData.BASE_SORT_FIELDS.each do |sort_field|
         @search_data.sort_fields[sort_field] = I18n.t("search.multi.#{sort_field}")
