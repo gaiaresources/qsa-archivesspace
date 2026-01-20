@@ -85,16 +85,27 @@ def _git(args, quiet: false, echo: true)
   system(cmd)
 end
 
+# Trying our best to support any of:
+#
+#  sometagname
+#  tags/sometagname
+#  refs/tags/sometagname
+#
+#  somebranchname
+#  origin/somebranchname
+#  remotes/origin/somebranchname
+#  refs/remotes/origin/somebranchname
+#
 def determine_target_ref(git_dir, target_ref)
-  # If `target_ref` actually exists in git_dir, use it.  Otherwise, we'll fall
-  # back to origin/master.
+  target_ref = target_ref.gsub(%r{^refs/}, '')
 
-  if git_silent("-C", git_dir, "show-ref", target_ref)
-    target_ref
-  else
-    puts "*** WARNING: No ref found matching '#{target_ref}' in repository #{git_dir}.  Falling back to origin/master"
-    'origin/master'
+  ["refs/", "refs/tags/", "refs/remotes/", "refs/remotes/origin/"].each do |possible_prefix|
+    if git_silent("-C", git_dir, "show-ref", possible_prefix + target_ref)
+      return possible_prefix + target_ref
+    end
   end
+
+  raise "Could not resolve '#{target_ref}' into the name of a tag or branch"
 end
 
 def main
@@ -105,9 +116,9 @@ def main
   unless ["update", "lose-my-work"].include?(mode)
     puts "Usage:"
     puts ""
-    puts "  * #{ENV['SCRIPT']} update [ref]  -- update plugins where a fast-forward merge is possible, cloning as needed."
+    puts "  * #{ENV['SCRIPT']} update <ref>  -- update plugins where a fast-forward merge is possible, cloning as needed."
     puts ""
-    puts "  * #{ENV['SCRIPT']} lose-my-work [ref]  -- clean and force update all plugins to `ref` (or to master if `ref` not given.)"
+    puts "  * #{ENV['SCRIPT']} lose-my-work <ref>  -- clean and force update all plugins to `ref` (or to master if `ref` not given.)"
     puts ""
     puts "Remotes will use https by default.  To use SSH instead: export GIT_PINEAPPLES_CLONE_WITH_SSH=1"
     puts ""
@@ -116,10 +127,10 @@ def main
   end
 
   target_ref = ARGV.shift
-  target_ref ||= 'origin/master'
 
-  unless target_ref.include?('/')
-    target_ref = 'origin/' + target_ref
+  if target_ref.nil?
+    puts "'ref' is a required argument, and should be the name of a tag or a branch"
+    exit 1
   end
 
   PLUGINS.each do |plugin|

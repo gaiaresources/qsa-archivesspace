@@ -31,17 +31,17 @@ local_gems = [
   {
     gem: "xlsx_streaming_reader",
     url: "git@gitlab.gaiaresources.com.au:qsa/xlsx_streaming_reader.git",
-    ref: "origin/evergreen",
+    ref: ENV.fetch("GIT_REF", "origin/develop"),
   },
   {
     gem: "qsa_shared",
     url: "git@gitlab.gaiaresources.com.au:qsa/qsa_shared.git",
-    ref: "origin/evergreen",
+    ref: ENV.fetch("GIT_REF", "origin/develop"),
   },
   {
     gem: "map_validator",
     url: "git@gitlab.gaiaresources.com.au:qsa/map_validator.git",
-    ref: "origin/evergreen",
+    ref: ENV.fetch("GIT_REF", "origin/develop"),
   },
 ]
 
@@ -59,14 +59,18 @@ local_gems.each do |gem|
     if File.exist?(File.join(checkout_dir, '.git')) && !File.symlink?(checkout_dir)
       $stderr.puts("Resetting '%s' to %s" % [checkout_dir, gem[:ref]])
       system("git", "-C", checkout_dir, "fetch", "origin")
-      system("git", "-C", checkout_dir, "reset", "--hard", gem.fetch(:ref))
+      unless system("git", "-C", checkout_dir, "reset", "--hard", gem.fetch(:ref))
+        raise "Failure while selecting version of dependency: #{gem.inspect}"
+      end
     end
   end
 
   # If the gem hasn't been checked out to local_gems/, grab a copy now.
   unless Dir.exist?(checkout_dir)
     system("git", "clone", gem.fetch(:url), checkout_dir)
-    system("git", "-C", checkout_dir, "reset", "--hard", gem.fetch(:ref))
+    unless system("git", "-C", checkout_dir, "reset", "--hard", gem.fetch(:ref))
+      raise "Failure while selecting version of dependency: #{gem.inspect}"
+    end
   end
 
   # Add to load path
