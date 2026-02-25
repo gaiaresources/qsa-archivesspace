@@ -29,6 +29,24 @@ def add_server_prepare_hook(callback)
 end
 
 
+class ClearRackTempFilter
+  include javax.servlet.Filter
+
+  def doFilter(request, response, chain)
+    begin
+      chain.doFilter(request, response)
+    ensure
+      if rack_input = request.getAttribute('aspace_rack_input')
+        rack_input = rack_input.to_java
+
+        if rack_input.java_method(:close)
+          rack_input.java_method(:close).call
+        end
+      end
+    end
+  end
+end
+
 def start_server(port, *webapps)
   server = org.eclipse.jetty.server.Server.new
 
@@ -51,6 +69,10 @@ def start_server(port, *webapps)
       context.context_path = webapp[:path]
       context.war = webapp[:war]
       context.class_loader = org.eclipse.jetty.webapp.WebAppClassLoader.new(JRuby.runtime.jruby_class_loader, context)
+
+      context.addFilter(org.eclipse.jetty.servlet.FilterHolder.new(ClearRackTempFilter.new),
+                        "/*",
+                        java.util.EnumSet.of(javax.servlet.DispatcherType::REQUEST))
 
       context
     elsif webapp[:static_dirs]

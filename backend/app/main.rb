@@ -39,8 +39,8 @@ require_relative 'lib/csv_template_generator'
 require_relative 'lib/ark/ark_minter'
 require_relative 'lib/user_mailer'
 require_relative 'lib/zombie_record_hunter'
-require_relative 'lib/close_rack_input_middleware'
 
+require 'jruby_rack_cleanup'
 
 require 'barcode_check'
 require 'benchmark'
@@ -364,8 +364,6 @@ class ArchivesSpaceService < Sinatra::Base
     end
   end
 
-
-  use CloseRackInputMiddleware
 
   use RequestWrappingMiddleware
 
