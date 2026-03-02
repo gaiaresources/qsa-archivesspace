@@ -11,7 +11,7 @@ require 'asutils'
 require 'aspace_i18n'
 
 require 'aspace_logger'
-
+require 'jruby_rack_cleanup'
 
 if defined?(Bundler)
   # If you precompile assets before deploying to production, use this line
