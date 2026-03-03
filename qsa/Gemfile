@@ -31,20 +31,27 @@ local_gems = [
   {
     gem: "xlsx_streaming_reader",
     url: "git@gitlab.gaiaresources.com.au:qsa/xlsx_streaming_reader.git",
-    ref: ENV.fetch("GIT_REF", "origin/develop"),
+    ref: ENV.fetch("GIT_REF", nil),
   },
   {
     gem: "qsa_shared",
     url: "git@gitlab.gaiaresources.com.au:qsa/qsa_shared.git",
-    ref: ENV.fetch("GIT_REF", "origin/develop"),
+    ref: ENV.fetch("GIT_REF", nil),
   },
   {
     gem: "map_validator",
     url: "git@gitlab.gaiaresources.com.au:qsa/map_validator.git",
-    ref: ENV.fetch("GIT_REF", "origin/develop"),
+    ref: ENV.fetch("GIT_REF", nil),
   },
 ]
 
+
+def assert_git_ref!(gem, checkout_dir)
+  unless gem[:ref]
+    raise "Deploy can't continue because GIT_REF environment variable was not set for gem #{gem[:gem]}." +
+          "  If you're in development mode, consider symlinking '#{checkout_dir}' to your development copy."
+  end
+end
 
 local_gems_path = File.join(File.dirname(__FILE__), "local_gems")
 
@@ -57,6 +64,8 @@ local_gems.each do |gem|
     # We're running a bootstrap.  Make sure we have the latest version of our
     # dependency.  If it's a symlink, we assume you know what you're doing.
     if File.exist?(File.join(checkout_dir, '.git')) && !File.symlink?(checkout_dir)
+      assert_git_ref!(gem, checkout_dir)
+
       $stderr.puts("Resetting '%s' to %s" % [checkout_dir, gem[:ref]])
       system("git", "-C", checkout_dir, "fetch", "origin")
       unless system("git", "-C", checkout_dir, "reset", "--hard", gem.fetch(:ref))
@@ -67,6 +76,8 @@ local_gems.each do |gem|
 
   # If the gem hasn't been checked out to local_gems/, grab a copy now.
   unless Dir.exist?(checkout_dir)
+    assert_git_ref!(gem, checkout_dir)
+
     system("git", "clone", gem.fetch(:url), checkout_dir)
     unless system("git", "-C", checkout_dir, "reset", "--hard", gem.fetch(:ref))
       raise "Failure while selecting version of dependency: #{gem.inspect}"
