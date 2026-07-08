@@ -14,6 +14,7 @@ class PasswordReset
       if db[:auth_db].filter(:username => username).count == 1
         db[:auth_db].filter(:username => username).
                      update(:pwhash => pwhash,
+                            :successive_login_failure_count => 0,
                             :system_mtime => Time.now)
         puts "Password updated for user: #{username}"
       else
