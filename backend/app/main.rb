@@ -40,6 +40,7 @@ require_relative 'lib/ark/ark_minter'
 require_relative 'lib/user_mailer'
 require_relative 'lib/zombie_record_hunter'
 require_relative 'lib/account_locked_notification'
+require_relative 'lib/mfa'
 
 require 'jruby_rack_cleanup'
 

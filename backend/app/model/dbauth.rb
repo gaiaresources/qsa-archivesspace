@@ -26,6 +26,9 @@ class DBAuth
       }
 
       db[:auth_db].filter(:username => username).update(:successive_login_failure_count => 0)
+
+      user = db[:user].filter(:username => username).first
+      db[:mfa_challenge].filter(:user_id => user.fetch(:id)).delete
     end
   end
 
@@ -70,10 +73,9 @@ class DBAuth
         )
 
         if (failure_count = db[:auth_db].filter(:username => username).get(:successive_login_failure_count)) == AppConfig[:login_max_attempts]
-          self.lock_account(username)
           Log.info("User #{username} has failed password authentication #{failure_count} times.  Account is now locked.")
 
-          AccountLockedNotification.new(User.find(:username => username)).send!
+          lock_account_and_email!(username)
         end
 
         nil
@@ -81,6 +83,10 @@ class DBAuth
     end
   end
 
+  def self.lock_account_and_email!(username)
+    self.lock_account(username)
+    AccountLockedNotification.new(User.find(:username => username)).send!
+  end
 
   def self.lock_account(username)
     DB.open do |db|

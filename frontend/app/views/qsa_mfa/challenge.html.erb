@@ -1,0 +1,165 @@
+<%= setup_context :title => "Please finish logging in", :suppress_breadcrumb => true %>
+
+<% if flash.any? %>
+    <div class="d-flex px-3">
+        <div class="mt-3 flex-grow-1">
+            <%= render_aspace_partial :partial => "shared/flash_messages" %>
+        </div>
+    </div>
+<% end %>
+
+<div class="d-flex py-5">
+    <div class="col-md-6 col-xl-4 lg-min-w-450px p-4"><!-- should lg-min-w-450px be xl-min-w-450px? -->
+        <h2>Multi-Factor Authentication</h2>
+    </div>
+    <div class="col-md-6 col-xl-4 p-4 bg-light">
+        <main id="login-form-wrapper" class="card p-3 p-sm-4">
+            <% if session['mfa_status'] == 'unconfigured' && @mode != 'check' %>
+                <div class="col s12">
+                    <p>To continue logging in, you need to configure Multi-Factor Authentication</p>
+
+                    <ul style="list-style: none;">
+                        <li>
+                            <label>
+                                <input type="radio" name="mfa_method" value="sms">
+                                <span>Send a code via SMS</span>
+                            </label>
+                        </li>
+
+                        <li>
+                            <label>
+                                <input type="radio" name="mfa_method" value="totp">
+                                <span>Use Google Authenticator</span>
+                            </label>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="sms mfa_settings sms_settings" style="display: none">
+                    <div class="col s12">
+                        <%= form_tag({:controller => :qsa_mfa, :action => :settings}) do |f| %>
+                            <%= hidden_field_tag(:mfa_method, 'sms') %>
+                            <h3>Code via SMS</h3>
+
+                            <p>Enter your phone number below and we will send you a secure code when you log in.</p>
+
+                            <div class="form-group">
+                                <label for="phone_number">Your mobile phone number</label>
+                                <input type="text" id="phone_number" name="phone_number" class="form-control form-control-lg" required>
+                                <small style="form-text">(e.g. <b>0412 345 789</b>)</small>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="phone_number_confirm">Confirm Your mobile phone number</label>
+                                <input type="text" id="phone_number_confirm" name="phone_number_confirm" class="form-control form-control-lg" required>
+                            </div>
+
+                            <div class="form-group">
+                                <button class="btn btn-primary" type="submit">Save</button>
+                                <div>
+                                    <small style="form-text">Click to test your new MFA settings</small>
+                                </div>
+                            </div>
+
+                        <% end %>
+                    </div>
+                </div>
+
+
+                <div class="mfa_settings totp_settings" style="display: none">
+                    <div class="col s12">
+                        <%= form_tag({:controller => :qsa_mfa, :action => :settings}) do |f| %>
+                            <%= hidden_field_tag(:mfa_method, 'totp') %>
+                            <h3>Google Authenticator</h3>
+
+                            <p>You can enter your account details into Google Authenticator by scanning the following QR code:</p>
+
+                            <p>
+                                <% totp_secret = ROTP::Base32.random %>
+                                <%= hidden_field_tag(:totp_secret, totp_secret) %>
+                                <%==
+                                totp = ROTP::TOTP.new(totp_secret, issuer: "QSA")
+                                RQRCode::QRCode.new(totp.provisioning_uri(session["provisional_user"])).as_svg(module_size: 3)
+                                %>
+                            </p>
+
+                            <p>Alternatively, manually enter the following key:</p>
+
+                            <blockquote><%= totp_secret %></blockquote>
+
+                            <div class="form-group">
+                                <button class="btn btn-primary" type="submit">Save</button>
+                                <div>
+                                    <small style="form-text">Click to test your new MFA settings</small>
+                                </div>
+                            </div>
+
+                        <% end %>
+                    </div>
+                </div>
+            <% else %>
+                <%= form_tag({:controller => :qsa_mfa, :action => :validate}) do |f| %>
+                    <div class="form-group w-100 row">
+                        <p>Please enter your six digit MFA verification code below:</p>
+
+                        <%= hidden_field_tag(:mode, @mode) %>
+                        <input type="text" name="challenge_response" placeholder="123456" required></input>
+
+                        <button class="btn btn-sm btn-primary">Complete MFA</button>
+                    </div>
+                <% end %>
+
+                <div class="form-group w-100 row">
+                    <button id="resend-challenge" class="btn btn-sm btn-secondary" type="button">Resend code</button>
+                    <div id="resend-challenge-status" class="w-100"></div>
+                </div>
+
+                <script>
+                 $('#resend-challenge').on('click', function () {
+                     const $status = $('#resend-challenge-status');
+                     $status.text('Sending...');
+
+                     $.ajax({
+                         url: '<%= url_for(:controller => :qsa_mfa, :action => :resend_challenge) %>',
+                         type: 'POST',
+                         data: {
+                             mode: <%== @mode.to_json %>
+                         }
+                     }).done(function () {
+                         $status.text('A code has been sent.');
+                     }).fail(function () {
+                         $status.text('Failed to send code. Please try again.');
+                     });
+                 });
+                </script>
+
+            <% end %>
+        </main>
+    </div>
+</div>
+
+
+<script>
+ const show_section = function () {
+     document.querySelectorAll('.mfa_settings').forEach((elt) => {
+         elt.style.display = 'none';
+     })
+
+     const selected = Array.from(document.querySelectorAll('input[name="mfa_method"]:checked')).map(n => n.value)[0]
+
+     if (selected === 'sms') {
+         document.querySelector('.sms_settings').style.display = 'block';
+     } else if (selected === 'totp') {
+         document.querySelector('.totp_settings').style.display = 'block';
+     }
+ }
+
+ document.querySelectorAll('input[name="mfa_method"]').forEach((elt) => {
+     elt.addEventListener('change', function () {
+         show_section();
+     })
+ });
+
+ show_section();
+</script>
+
