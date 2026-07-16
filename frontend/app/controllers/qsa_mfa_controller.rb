@@ -106,7 +106,7 @@ class QsaMfaController < ApplicationController
       response = JSONModel::HTTP.post_form('/mfa/resend-challenge', mode: params[:mode])
 
       if response.code == '200'
-        render :json => {}, :status => 200
+        render :json => ASUtils.json_parse(response.body), :status => 200
       else
         raise "Failure re-issuing challenge: #{response}"
       end

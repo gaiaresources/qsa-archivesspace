@@ -125,9 +125,14 @@
                          data: {
                              mode: <%== @mode.to_json %>
                          }
-                     }).done(function () {
-                         $status.text('A code has been sent.');
-                     }).fail(function () {
+                     }).done(function (json) {
+                         if (json.status === 'not_applicable') {
+                             $status.text('Please check your authenticator app for the latest code');
+                         } else {
+                             $status.text('A code has been sent.');
+                         }
+                     }
+                     ).fail(function () {
                          $status.text('Failed to send code. Please try again.');
                      });
                  });

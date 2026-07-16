@@ -46,9 +46,9 @@ class ArchivesSpaceService < Sinatra::Base
     .permissions([])
     .returns([200, :ok]) \
   do
-    MFA.resend_challenge(current_user.id, params[:mode].intern)
+    status = MFA.resend_challenge(current_user.id, params[:mode].intern)
 
-    json_response(:status => "OK")
+    json_response(:status => status.to_s)
   end
 
   Endpoint.post('/mfa/validate')

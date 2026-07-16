@@ -119,6 +119,8 @@ class MFA
 
       if (challenge = db[:mfa_challenge].filter(user_id: user_id, type: mode.to_s).first)
         authenticator.resend_challenge(challenge.fetch(:state))
+      else
+        :no_active_challenge
       end
     end
   end
@@ -245,6 +247,7 @@ class MFA
 
     def resend_challenge(challenge)
       send_sms(challenge)
+      :sent
     end
 
     private
@@ -295,6 +298,7 @@ class MFA
 
     def resend_challenge(_challenge)
       # Nothing to do for TOTP
+      :not_applicable
     end
   end
 
