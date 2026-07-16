@@ -105,7 +105,7 @@
                         <%= hidden_field_tag(:mode, @mode) %>
                         <input type="text" name="challenge_response" placeholder="123456" required></input>
 
-                        <button class="btn btn-sm btn-primary">Complete MFA</button>
+                        <button class="btn btn-sm btn-primary" type="submit">Complete MFA</button>
                     </div>
                 <% end %>
 
@@ -161,5 +161,23 @@
  });
 
  show_section();
+
+ const onSubmit = function(e) {
+     if (e.target.getAttribute('submitted')) {
+         e.preventDefault();
+         return false;
+     }
+
+     e.target.querySelectorAll('button[type=submit]').forEach(el => {
+         el.setAttribute('disabled', 'disabled');
+     });
+     e.target.setAttribute('submitted', 'true');
+
+     return true;
+ }
+
+ document.querySelectorAll('#login-form-wrapper form').forEach((elt) => {
+     elt.addEventListener('submit', onSubmit);
+ });
 </script>
 
