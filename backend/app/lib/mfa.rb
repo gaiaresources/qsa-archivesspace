@@ -70,7 +70,7 @@ class MFA
                              confirmed: 0,
                             )
       else
-        raise
+        raise "BUG: Not all MFA methods covered"
       end
     end
   end
@@ -92,10 +92,14 @@ class MFA
         clz.from_row(row)
       end
     end.compact.first
+
+    raise "Authenticator not found for user_id=#{user_id} and confirmed=#{confirmed_value}" unless authenticator
+
+    authenticator
   end
 
   def self.log_success(db, user_id, confirmed_value)
-    authenticator = [:mfa_sms, :mfa_keys].each do |table|
+    [:mfa_sms, :mfa_keys].each do |table|
       db[table].filter(user_id: user_id, confirmed: confirmed_value).update(:last_success => java.lang.System.currentTimeMillis)
     end
   end
@@ -112,10 +116,6 @@ class MFA
 
     DB.open do |db|
       authenticator = find_authenticator(db, user_id, confirmed_value)
-
-      unless authenticator
-        raise "Authenticator not found for user_id=#{user_id} and confirmed=#{confirmed_value}"
-      end
 
       if (challenge = db[:mfa_challenge].filter(user_id: user_id, type: mode.to_s).first)
         authenticator.resend_challenge(challenge.fetch(:state))
@@ -138,10 +138,6 @@ class MFA
 
     DB.open do |db|
       authenticator = find_authenticator(db, user_id, confirmed_value)
-
-      unless authenticator
-        raise "Authenticator not found for user_id=#{user_id} and confirmed=#{confirmed_value}"
-      end
 
       db[:mfa_challenge].filter(user_id: user_id, type: mode.to_s).delete
       db[:mfa_challenge].insert(authenticator.issue_challenge.merge(
@@ -200,7 +196,7 @@ class MFA
 
         if new_count == max_attempts
           result = :max_reached
-          if mode != :check
+          if mode == :confirmed
             DBAuth.lock_account_and_email!(db[:user].filter(:id => user_id).get(:username))
           end
         end
@@ -222,7 +218,7 @@ class MFA
     def validate(challenge, challenge_response)
       challenge_response = challenge_response.to_s.gsub(/[^0-9]/, '')
 
-      return false if challenge.length != challenge.length
+      return false if challenge.length != challenge_response.length
 
       valid = true
 
