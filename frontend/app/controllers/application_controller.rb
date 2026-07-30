@@ -3,6 +3,8 @@ require 'memoryleak'
 require 'search'
 require 'zlib'
 
+require 'rotp'
+
 class ApplicationController < ActionController::Base
   include ActionView::Helpers::TranslationHelper
   protect_from_forgery with: :exception

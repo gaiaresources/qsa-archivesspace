@@ -108,6 +108,20 @@
                      <% else %>
                        <%= link_to t("user._frontend.action.deactivate_user"), user_deactivate_path(user.id), :confirm => "Are you sure?", :class => "btn btn-sm btn-danger".concat(disabled), :id => "deactivate_#{user.username}" %>
                      <% end %>
+
+                     <%= button_confirm_action(
+                         "Reset MFA",
+                         url_for({:controller => :qsa_mfa, :action => :reset_mfa_for_user, :user_id => user.id, :username => user.username}),
+                         {
+                             :class => "btn btn-sm btn-default",
+                             :"data-title" => "Reset MFA for user?",
+                             :"data-message" => "Resetting MFA for this user will force them to reconfigure their settings when they next log in.",
+                             :"data-confirm-btn-label" => "Reset MFA",
+                             :"data-confirm-btn-class" => "btn-primary",
+                         }
+                     )
+                     %>
+
                    <% end %>
                  </div>
                </td>

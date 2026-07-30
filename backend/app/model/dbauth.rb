@@ -1,5 +1,6 @@
 require 'bcrypt'
 require 'base64'
+require 'securerandom'
 
 class DBAuth
 
@@ -23,6 +24,11 @@ class DBAuth
                :pwhash => pwhash,
                :system_mtime => Time.now)
       }
+
+      db[:auth_db].filter(:username => username).update(:successive_login_failure_count => 0)
+
+      user = db[:user].filter(:username => username).first
+      db[:mfa_challenge].filter(:user_id => user.fetch(:id)).delete
     end
   end
 
@@ -41,22 +47,50 @@ class DBAuth
         return nil
       end
 
-      if pwhash and (Password.new(pwhash) == password)
+      if Password.new(pwhash) == password
+        db[:auth_db].filter(:username => username).update(
+          :successive_login_failure_count => 0,
+          :last_login_success_time => java.lang.System.currentTimeMillis
+        )
+
         user = User.find(:username => username)
+
         JSONModel(:user).from_hash(
-         :username => username,
-         :name => user.name,
-         :email => user.email,
-         :first_name => user.first_name,
-         :last_name => user.last_name,
-         :telephone => user.telephone,
-         :title => user.title,
-         :department => user.department,
-         :additional_contact => user.additional_contact
+          :username => username,
+          :name => user.name,
+          :email => user.email,
+          :first_name => user.first_name,
+          :last_name => user.last_name,
+          :telephone => user.telephone,
+          :title => user.title,
+          :department => user.department,
+          :additional_contact => user.additional_contact
         )
       else
+        db[:auth_db].filter(:username => username).update(
+          :successive_login_failure_count => Sequel[:successive_login_failure_count] + 1,
+          :last_login_failure_time => java.lang.System.currentTimeMillis
+        )
+
+        if (failure_count = db[:auth_db].filter(:username => username).get(:successive_login_failure_count)) == AppConfig[:login_max_attempts]
+          Log.info("User #{username} has failed password authentication #{failure_count} times.  Account is now locked.")
+
+          lock_account_and_email!(username)
+        end
+
         nil
       end
+    end
+  end
+
+  def self.lock_account_and_email!(username)
+    self.lock_account(username)
+    AccountLockedNotification.new(User.find(:username => username)).send!
+  end
+
+  def self.lock_account(username)
+    DB.open do |db|
+      db[:auth_db].filter(:username => username).update(:pwhash => BCrypt::Password.create(SecureRandom.hex(64)))
     end
   end
 

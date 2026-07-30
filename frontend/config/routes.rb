@@ -344,6 +344,14 @@ ArchivesSpace::Application.routes.draw do
     match "system_info" => "system_info#show", :via => [ :get ]
     match "system_info/log" => "system_info#stream_log", :via => [:get]
 
+    match "/mfa/challenge" => "qsa_mfa#challenge", :via => [:get]
+    match "/mfa/settings" => "qsa_mfa#settings", :via => [:post]
+    match "/mfa/validate" => "qsa_mfa#validate", :via => [:post]
+    match "/mfa/resend-challenge" => "qsa_mfa#resend_challenge", :via => [:post]
+
+    match "/mfa/reset-current-user" => "qsa_mfa#reset_mfa_for_current_user", :via => [:post]
+    match "/mfa/reset-user" => "qsa_mfa#reset_mfa_for_user", :via => [:post]
+
     root :to => 'welcome#index'
   end
 end

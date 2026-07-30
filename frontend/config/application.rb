@@ -13,6 +13,8 @@ require 'aspace_i18n'
 require 'aspace_logger'
 require 'jruby_rack_cleanup'
 
+require_relative '../app/middleware/qsa_mfa'
+
 if defined?(Bundler)
   # If you precompile assets before deploying to production, use this line
   Bundler.require(*Rails.groups(:assets => %w(development test)))
@@ -26,6 +28,7 @@ module ArchivesSpace
   class Application < Rails::Application
 
     config.middleware.use Rack::TempfileReaper
+    config.middleware.use QSAMultiFactorAuthentication
 
     def self.extend_aspace_routes(routes_file)
       ArchivesSpace::Application.config.paths['config/routes.rb'].concat([routes_file])

@@ -85,6 +85,7 @@ class AppConfig
     java.lang.System.get_properties.each do |property, value|
       if property =~ /aspace.config.(.*)/
         @@parameters[resolve_alias($1.intern)] = value
+        @@changed_from_default[resolve_alias($1.intern)] = true
       end
     end
   end
@@ -97,6 +98,7 @@ class AppConfig
         # Convert envvar to property: i.e. turn APPCONFIG_DB_URL into :db_url
         property = envvar.partition('_').last.downcase.to_sym
         @@parameters[resolve_alias(property)] = parse_value(value)
+        @@changed_from_default[resolve_alias(property)] = true
       end
     end
   end

@@ -4,7 +4,20 @@
   <div class="d-flex">
     <div class="col-md-1"></div>
      <div class="col-md-11">
-       <%= render_aspace_partial :partial => "toolbar" %>
+       <div class="record-toolbar d-flex flex-wrap">
+         <%= button_confirm_action(
+           "Reset MFA",
+           url_for(:controller => :qsa_mfa, :action => :reset_mfa_for_current_user),
+           {
+             :class => "btn btn-sm btn-danger flex-item ml-auto",
+             :"data-title" => "Reset Multi-Factor Authentication (MFA) for your account?",
+             :"data-message" => "This will clear your existing MFA settings and require you to log back into ArchivesSpace",
+             :"data-confirm-btn-label" => "Reset my Multi-Factor Authentication settings",
+             :"data-confirm-btn-class" => "btn-primary",
+           }
+         )
+         %>
+       </div>
        <div class="record-pane">
          <%= link_to_help :topic => "user" %>
          <h2><%= t("user._frontend.section.edit_account") %></h2>

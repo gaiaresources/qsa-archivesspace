@@ -8,20 +8,30 @@ class User < JSONModel(:user)
   end
 
   def self.establish_session(context, backend_session, username)
-    context.session[:session] = backend_session["session"]
 
     store_permissions(backend_session["user"]["permissions"], context)
 
     context.session[:user_uri] = backend_session["user"]["uri"]
-    context.session[:user] = username
+
+    if backend_session['mfa_status'] == 'already_checked'
+      # User is good to go
+      context.session[:user] = username
+      context.session[:session] = backend_session["session"]
+    else
+      context.session[:mfa_status] = backend_session['mfa_status']
+      context.session[:provisional_user] = username
+      context.session[:provisional_session] = backend_session["session"]
+    end
   end
 
 
   def self.refresh_permissions(context)
-    user = self.find('current-user')
+    if context.session[:user]
+      user = self.find('current-user')
 
-    if user
-      store_permissions(user.permissions, context)
+      if user
+        store_permissions(user.permissions, context)
+      end
     end
   end
 
