@@ -29,6 +29,11 @@ class DBAuth
 
       user = db[:user].filter(:username => username).first
       db[:mfa_challenge].filter(:user_id => user.fetch(:id)).delete
+
+      # Force MFA when they next log in
+      [:mfa_sms, :mfa_keys].each do |mfa_tbl|
+        db[mfa_tbl].filter(:user_id => user.fetch(:id)).update(:last_success => 0)
+      end
     end
   end
 
@@ -46,6 +51,10 @@ class DBAuth
         Password.new(FAKE_HASH) == FAKE_PASSWORD
         return nil
       end
+
+      # Remove our lock indicator to let the check go through.  The password was
+      # scrambled anyway, so this just gets the timing right.
+      pwhash.gsub!(/^!/, '')
 
       if Password.new(pwhash) == password
         db[:auth_db].filter(:username => username).update(
@@ -90,7 +99,17 @@ class DBAuth
 
   def self.lock_account(username)
     DB.open do |db|
-      db[:auth_db].filter(:username => username).update(:pwhash => BCrypt::Password.create(SecureRandom.hex(64)))
+      db[:auth_db].filter(:username => username).update(:pwhash => '!' + BCrypt::Password.create(SecureRandom.hex(64)))
+    end
+  end
+
+  def self.account_locked?(username)
+    DB.open do |db|
+      if (pwhash = db[:auth_db].filter(:username => username.downcase).get(:pwhash))
+        pwhash.start_with?('!')
+      else
+        false
+      end
     end
   end
 

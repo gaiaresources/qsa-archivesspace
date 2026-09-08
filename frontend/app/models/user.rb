@@ -46,6 +46,9 @@ class User < JSONModel(:user)
   end
 
 
+  class AccountLocked < StandardError
+  end
+
   def self.login(username, password)
     uri = JSONModel(:user).uri_for("#{username}/login")
 
@@ -54,6 +57,12 @@ class User < JSONModel(:user)
     if response.code == '200'
       ASUtils.json_parse(response.body)
     else
+      json = ASUtils.json_parse(response.body)
+
+      if json && json.fetch('account_locked', false) == true
+        raise AccountLocked.new
+      end
+
       nil
     end
   end
