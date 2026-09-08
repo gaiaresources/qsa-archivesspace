@@ -260,7 +260,8 @@ class ArchivesSpaceService < Sinatra::Base
         json_response(response)
       end
     else
-      json_response({:error => "Login failed"}, 403)
+      locked = DBAuth.account_locked?(username)
+      json_response({:error => "Login failed", :account_locked => locked}, 403)
     end
   end
 

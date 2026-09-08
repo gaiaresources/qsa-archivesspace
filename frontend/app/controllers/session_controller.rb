@@ -5,7 +5,14 @@ class SessionController < ApplicationController
 
 
   def login
-    backend_session = User.login(params[:username], params[:password])
+    warn_about_locked = false
+
+    backend_session = begin
+                        User.login(params[:username], params[:password])
+                      rescue User::AccountLocked
+                        warn_about_locked = true
+                        nil
+                      end
 
     if backend_session
       User.establish_session(self, backend_session, params[:username])
@@ -13,7 +20,7 @@ class SessionController < ApplicationController
 
     load_repository_list
 
-    render :json => {:session => backend_session, :csrf_token => form_authenticity_token}
+    render :json => {:session => backend_session, :csrf_token => form_authenticity_token, :warn_about_locked => warn_about_locked}
   end
 
 

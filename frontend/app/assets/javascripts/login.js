@@ -12,7 +12,15 @@ AS.LoginHelper = {
 
       var handleError = function () {
         $('.form-group', $form).addClass('has-error');
-        $('.alert-danger', $form).show();
+        $('.alert-danger.login-fail', $form).show();
+        $('#login', $form).attr('disabled', null);
+
+        $form.trigger('loginerror.aspace');
+      };
+
+      var handleWarnAboutLocked = function () {
+        $('.form-group', $form).addClass('has-error');
+        $('.alert-danger.maybe-locked', $form).show();
         $('#login', $form).attr('disabled', null);
 
         $form.trigger('loginerror.aspace');
@@ -26,6 +34,8 @@ AS.LoginHelper = {
         success: function (json, status, xhr) {
           if (json.session) {
             handleSuccess(json);
+          } else if (json.warn_about_locked) {
+              handleWarnAboutLocked();
           } else {
             handleError();
           }
