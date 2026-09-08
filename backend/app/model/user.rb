@@ -42,6 +42,21 @@ class User < Sequel::Model(:user)
   end
 
 
+  def self.set_email(user_id, email)
+    if email =~ /\A[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\z/i
+      user = User[user_id]
+
+      raise "User not found" unless user
+
+      json = User.to_jsonmodel(user_id)
+      json.email = email
+
+      user.update_from_json(json)
+    else
+      raise "Invalid email address"
+    end
+  end
+
   def self.make_admin_if_requested(obj, json)
     return if !RequestContext.get(:apply_admin_access)
 

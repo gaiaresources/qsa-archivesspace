@@ -29,6 +29,17 @@ class ArchivesSpaceService < Sinatra::Base
     json_response(:status => "OK")
   end
 
+  Endpoint.post('/mfa/save-email')
+    .description("Save a user's email address")
+    .params(["email", String, "The email address to set"])
+    .permissions([])
+    .returns([200, :saved]) \
+  do
+    User.set_email(current_user.id, params[:email])
+
+    json_response(:status => "OK")
+  end
+
   Endpoint.post('/mfa/issue-challenge')
     .description('Issue an MFA challenge to the current user')
     .params(["mode", String, "confirmed or check"])

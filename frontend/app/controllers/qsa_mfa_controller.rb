@@ -1,5 +1,5 @@
 class QsaMfaController < ApplicationController
-  set_access_control :public => [:challenge, :validate, :settings, :resend_challenge]
+  set_access_control :public => [:challenge, :validate, :settings, :resend_challenge, :save_email]
   set_access_control "view_repository" => [:reset_mfa_for_current_user]
   set_access_control "manage_users" => [:reset_mfa_for_user]
 
@@ -72,6 +72,33 @@ class QsaMfaController < ApplicationController
     redirect_to :controller => "users", :action => "index"
   end
 
+
+  def save_email
+    email = params[:email].to_s.strip
+    confirm_email = params[:confirm_email].to_s.strip
+
+    if email != confirm_email
+      flash[:error] = 'Entered email addresses did not match'
+      return redirect_to action: :challenge
+    end
+
+    success = with_provisional_session do
+      response = JSONModel::HTTP.post_form('/mfa/save-email',
+                                           email: email)
+
+      response.code == '200'
+    end
+
+    if success
+      session[:user_has_email_configured] = true
+    else
+      flash[:error] = 'There was a problem saving your email address.  Please check your address and try again.'
+      return redirect_to action: :challenge
+    end
+
+    flash[:success] = 'Your email address was saved'
+    return redirect_to action: :challenge
+  end
 
   def clean_phone_number(s)
     s.to_s.gsub(/[^0-9]/, '')

@@ -18,21 +18,41 @@
                 <div class="col s12">
                     <p>To continue logging in, you need to configure Multi-Factor Authentication</p>
 
-                    <ul style="list-style: none;">
-                        <li>
-                            <label>
-                                <input type="radio" name="mfa_method" value="sms">
-                                <span>Send a code via SMS</span>
-                            </label>
-                        </li>
+                    <% if session['user_has_email_configured'] %>
+                        <ul style="list-style: none;">
+                            <li>
+                                <label>
+                                    <input type="radio" name="mfa_method" value="sms">
+                                    <span>Send a code via SMS</span>
+                                </label>
+                            </li>
 
-                        <li>
-                            <label>
-                                <input type="radio" name="mfa_method" value="totp">
-                                <span>Use Google Authenticator</span>
-                            </label>
-                        </li>
-                    </ul>
+                            <li>
+                                <label>
+                                    <input type="radio" name="mfa_method" value="totp">
+                                    <span>Use Google Authenticator</span>
+                                </label>
+                            </li>
+                        </ul>
+                    <% else %>
+                        <p>Please set your email address so we can restore your access if you ever get locked out:</p>
+
+                        <%= form_tag({:controller => :qsa_mfa, :action => :save_email}) do |f| %>
+                            <div class="form-group">
+                                <label for="email">Your email address</label>
+                                <input required class="form-control form-control-lg" type="email" name="email" id="email">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="confirm_email">Confirm your email address</label>
+                                <input required class="form-control form-control-lg" type="email" name="confirm_email" id="confirm_email">
+                            </div>
+
+                            <button class="btn btn-primary" type="submit">Save</button>
+                        <% end %>
+
+
+                    <% end %>
                 </div>
 
                 <div class="sms mfa_settings sms_settings" style="display: none">
@@ -50,7 +70,7 @@
                             </div>
 
                             <div class="form-group">
-                                <label for="phone_number_confirm">Confirm Your mobile phone number</label>
+                                <label for="phone_number_confirm">Confirm your mobile phone number</label>
                                 <input type="text" id="phone_number_confirm" name="phone_number_confirm" class="form-control form-control-lg" required>
                             </div>
 
