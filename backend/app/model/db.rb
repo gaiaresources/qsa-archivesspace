@@ -34,6 +34,16 @@ class DB
       @lock = Mutex.new
     end
 
+    def add_additional_query_options(db_url)
+      slow_query_millis = AppConfig[:db_slow_query_millis] rescue 2000
+
+      if (AppConfig[:db_slow_query_log] rescue false)
+        db_url += "&slowQueryThresholdMillis=#{slow_query_millis}&logSlowQueries=true&autoSlowLog=false&explainSlowQueries=true"
+      else
+        db_url
+      end
+    end
+
     def connect
       if not @pool
 
@@ -42,8 +52,8 @@ class DB
         end
 
         begin
-          Log.info("Connecting to database: #{AppConfig[:db_url_redacted]}. Max connections: #{pool_size}")
-          pool = Sequel.connect(AppConfig[:db_url],
+          Log.info("Connecting to database: #{add_additional_query_options(AppConfig[:db_url_redacted])}. Max connections: #{pool_size}")
+          pool = Sequel.connect(add_additional_query_options(AppConfig[:db_url]),
                                 :max_connections => pool_size,
                                 :pool_timeout => pool_timeout,
                                 :test => true,
