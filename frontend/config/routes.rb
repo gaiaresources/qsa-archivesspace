@@ -351,6 +351,7 @@ ArchivesSpace::Application.routes.draw do
 
     match "/mfa/reset-current-user" => "qsa_mfa#reset_mfa_for_current_user", :via => [:post]
     match "/mfa/reset-user" => "qsa_mfa#reset_mfa_for_user", :via => [:post]
+    match "/mfa/save_email" => "qsa_mfa#save_email", :via => [:post]
 
     root :to => 'welcome#index'
   end

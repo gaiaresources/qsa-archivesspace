@@ -21,6 +21,7 @@ class User < JSONModel(:user)
       context.session[:mfa_status] = backend_session['mfa_status']
       context.session[:provisional_user] = username
       context.session[:provisional_session] = backend_session["session"]
+      context.session[:user_has_email_configured] = !!backend_session["user"]["email"]
     end
   end
 
